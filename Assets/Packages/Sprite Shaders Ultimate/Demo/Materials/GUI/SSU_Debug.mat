@@ -13,8 +13,6 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - ETC1_EXTERNAL_ALPHA
-  - _ENABLECHECKERBOARD_ON
-  - _ENABLERAINBOW_ON
   - _SHADERFADING_NONE
   - _SHADERSPACE_SCREEN
   - _TEXTURELAYER1SHEETTOGGLE_ON
@@ -185,7 +183,7 @@ Material:
     - _EnableBrightness: 0
     - _EnableBurn: 0
     - _EnableCamouflage: 0
-    - _EnableCheckerboard: 1
+    - _EnableCheckerboard: 0
     - _EnableColorReplace: 0
     - _EnableContrast: 0
     - _EnableCustomFade: 0
@@ -212,7 +210,7 @@ Material:
     - _EnablePixelOutline: 0
     - _EnablePixelate: 0
     - _EnablePoison: 0
-    - _EnableRainbow: 1
+    - _EnableRainbow: 0
     - _EnableRecolorRGB: 0
     - _EnableRecolorRGBYCP: 0
     - _EnableSaturation: 0
@@ -369,13 +367,13 @@ Material:
     - _ShiftingSpeed: 0.5
     - _ShineContrast: 2
     - _ShineFade: 1
-    - _ShineFrequency: 0.3
+    - _ShineFrequency: 1
     - _ShineMaskToggle: 0
     - _ShineRotation: 30
-    - _ShineSaturation: 0.5
+    - _ShineSaturation: 0.25
     - _ShineSmooth: 1
-    - _ShineSpeed: 5
-    - _ShineWidth: 0.1
+    - _ShineSpeed: 4
+    - _ShineWidth: 0.05
     - _SineGlowContrast: 1
     - _SineGlowFade: 1
     - _SineGlowFrequency: 4
