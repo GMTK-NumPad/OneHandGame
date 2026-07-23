@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace TheBlackCat.TrailEffect2D
 {
@@ -31,14 +32,12 @@ namespace TheBlackCat.TrailEffect2D
 
         private void Update()
         {
-            if (Input.GetMouseButtonUp(0))
+            if (Mouse.current.leftButton.wasPressedThisFrame)
             {
-                TrailManager.Instance.StopTrail(gameObject);
+            TrailManager.Instance.StopTrail(gameObject);
+                Debug.Log("왼쪽 마우스 버튼 클릭!");
             }
-            if (Input.GetMouseButtonUp(2))
-            {
-                TrailManager.Instance.DestroyManager();
-            }
+            
         }
     }
 }
