@@ -178,30 +178,6 @@ public sealed class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 월드 위치를 유효한 보드 좌표로 변환합니다.
-    /// </summary>
-    public bool TryWorldToBoard(Vector3 worldPosition, out GridPosition position)
-    {
-        Vector3Int cell;
-
-        if (walkableTilemap != null)
-        {
-            cell = walkableTilemap.WorldToCell(worldPosition);
-        }
-        else
-        {
-            Vector3 localPosition = transform.InverseTransformPoint(worldPosition);
-            cell = Vector3Int.FloorToInt(localPosition);
-        }
-
-        position = new GridPosition(
-            cell.x - originCell.x,
-            cell.y - originCell.y);
-
-        return EnsureBoardState().IsInside(position);
-    }
-
-    /// <summary>
     /// 아직 생성되지 않은 논리 보드를 필요할 때 즉시 구성해 반환합니다.
     /// </summary>
     private BoardState EnsureBoardState()

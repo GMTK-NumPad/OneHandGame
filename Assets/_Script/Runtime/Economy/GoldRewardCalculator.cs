@@ -19,17 +19,17 @@ public static class GoldRewardCalculator
             safeBaseGold * (1d - rules.NormalVariance));
         int normalMaximum = RoundToInt(
             safeBaseGold * (1d + rules.NormalVariance));
-        int jackpotMaximum = Math.Max(
-            normalMaximum,
-            RoundToInt(
-                safeBaseGold * rules.JackpotMaximumMultiplier));
+        double jackpotCenter =
+            safeBaseGold * rules.JackpotMultiplier;
+        int jackpotMinimum = RoundToInt(
+            jackpotCenter * (1d - rules.JackpotVariance));
+        int jackpotMaximum = RoundToInt(
+            jackpotCenter * (1d + rules.JackpotVariance));
 
-        bool isJackpot =
-            jackpotRoll < rules.JackpotChance
-            && jackpotMaximum > normalMaximum;
+        bool isJackpot = jackpotRoll < rules.JackpotChance;
 
         int minimum = isJackpot
-            ? normalMaximum + 1
+            ? jackpotMinimum
             : normalMinimum;
         int maximum = isJackpot
             ? jackpotMaximum

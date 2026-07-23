@@ -87,7 +87,7 @@ public sealed class PlayerRuntimeStatsTests
             Is.EqualTo(1));
 
         stats.AddGuard(1);
-        Assert.That(stats.TryConsumeGuard(), Is.True);
+        Assert.That(stats.TakeAttackDamage(1), Is.Zero);
         Assert.That(stats.GuardCount, Is.Zero);
     }
 
@@ -133,7 +133,7 @@ public sealed class PlayerRuntimeStatsTests
         stats.ResetGuardForRound();
         Assert.That(stats.GuardCount, Is.EqualTo(2));
 
-        stats.TryConsumeGuard();
+        stats.TakeAttackDamage(1);
         stats.ResetGuardForRound();
         Assert.That(stats.GuardCount, Is.EqualTo(2));
     }
@@ -146,7 +146,7 @@ public sealed class PlayerRuntimeStatsTests
     {
         PlayerRuntimeStats stats = definition.CreateRuntimeStats();
 
-        stats.TakeUnavoidableDamage(stats.MaxHealth + 10);
+        stats.TakeEnvironmentDamage(stats.MaxHealth + 10);
         Assert.That(stats.CurrentHealth, Is.Zero);
         Assert.That(stats.IsDefeated, Is.True);
 

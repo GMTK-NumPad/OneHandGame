@@ -38,14 +38,6 @@ public readonly struct GridPosition : IEquatable<GridPosition>
     }
 
     /// <summary>
-    /// 두 보드 좌표 사이의 상하좌우 타일 거리를 계산합니다.
-    /// </summary>
-    public int ManhattanDistanceTo(GridPosition other)
-    {
-        return Math.Abs(X - other.X) + Math.Abs(Y - other.Y);
-    }
-
-    /// <summary>
     /// 다른 보드 좌표와 X, Y 값이 같은지 확인합니다.
     /// </summary>
     public bool Equals(GridPosition other)

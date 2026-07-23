@@ -138,7 +138,7 @@ public sealed class PlayerRuntimeStats
     /// <summary>
     /// Guard가 남아 있다면 1회 소비하고 공격 방어 성공 여부를 반환합니다.
     /// </summary>
-    public bool TryConsumeGuard()
+    private bool TryConsumeGuard()
     {
         if (GuardCount <= 0)
         {
@@ -163,14 +163,6 @@ public sealed class PlayerRuntimeStats
     public int TakeEnvironmentDamage(int amount)
     {
         return TakeDefendableDamage(amount);
-    }
-
-    /// <summary>
-    /// 무적과 Guard를 무시하는 피해를 적용하고 실제 감소량을 반환합니다.
-    /// </summary>
-    public int TakeUnavoidableDamage(int amount)
-    {
-        return ApplyHealthDamage(amount);
     }
 
     /// <summary>
@@ -204,14 +196,6 @@ public sealed class PlayerRuntimeStats
         int previousHealth = CurrentHealth;
         CurrentHealth = Mathf.Min(MaxHealth, CurrentHealth + Mathf.Max(0, amount));
         return CurrentHealth - previousHealth;
-    }
-
-    /// <summary>
-    /// 현재 체력을 적용된 최대 체력까지 모두 회복합니다.
-    /// </summary>
-    public void RestoreToFullHealth()
-    {
-        CurrentHealth = MaxHealth;
     }
 
     /// <summary>

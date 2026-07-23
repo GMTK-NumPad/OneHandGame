@@ -11,18 +11,21 @@ public readonly struct GoldRewardRules
     public GoldRewardRules(
         float normalVariance,
         float jackpotChance,
-        float jackpotMaximumMultiplier)
+        float jackpotMultiplier,
+        float jackpotVariance)
     {
         NormalVariance = Math.Clamp(normalVariance, 0f, 1f);
         JackpotChance = Math.Clamp(jackpotChance, 0f, 1f);
-        JackpotMaximumMultiplier = Math.Max(
+        JackpotMultiplier = Math.Max(
             1f,
-            jackpotMaximumMultiplier);
+            jackpotMultiplier);
+        JackpotVariance = Math.Clamp(jackpotVariance, 0f, 1f);
     }
 
     public float NormalVariance { get; }
     public float JackpotChance { get; }
-    public float JackpotMaximumMultiplier { get; }
+    public float JackpotMultiplier { get; }
+    public float JackpotVariance { get; }
 }
 
 /// <summary>

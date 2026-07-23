@@ -15,75 +15,13 @@ public sealed class RoundFlowStateMachineTests
         flow.StartFirstRound(3);
 
         Assert.That(
-            flow.CommitPlayerAction(
-                executesEnemyTurn: true,
-                decreasesCount: true),
+            flow.CompletePlayerTurn(),
             Is.True);
         Assert.That(flow.Phase, Is.EqualTo(RoundPhase.EnemyTurn));
 
         Assert.That(flow.CompleteEnemyTurn(), Is.True);
         Assert.That(flow.Phase, Is.EqualTo(RoundPhase.PlayerTurn));
         Assert.That(flow.RemainingCount, Is.EqualTo(9));
-    }
-
-    /// <summary>
-    /// 몬스터는 행동하지만 카운트를 감소시키지 않는 행동을 검사합니다.
-    /// </summary>
-    [Test]
-    public void CountFreeAction_RunsEnemyTurnWithoutDecreasingCount()
-    {
-        var flow = new RoundFlowStateMachine(10);
-        flow.StartFirstRound(3);
-
-        Assert.That(
-            flow.CommitPlayerAction(
-                executesEnemyTurn: true,
-                decreasesCount: false),
-            Is.True);
-
-        Assert.That(flow.Phase, Is.EqualTo(RoundPhase.EnemyTurn));
-        flow.CompleteEnemyTurn();
-
-        Assert.That(flow.Phase, Is.EqualTo(RoundPhase.PlayerTurn));
-        Assert.That(flow.RemainingCount, Is.EqualTo(10));
-    }
-
-    /// <summary>
-    /// 몬스터 행동을 생략하고 카운트만 감소시키는 행동을 검사합니다.
-    /// </summary>
-    [Test]
-    public void EnemyTurnSkip_CanDecreaseCount()
-    {
-        var flow = new RoundFlowStateMachine(10);
-        flow.StartFirstRound(3);
-
-        Assert.That(
-            flow.CommitPlayerAction(
-                executesEnemyTurn: false,
-                decreasesCount: true),
-            Is.True);
-
-        Assert.That(flow.Phase, Is.EqualTo(RoundPhase.PlayerTurn));
-        Assert.That(flow.RemainingCount, Is.EqualTo(9));
-    }
-
-    /// <summary>
-    /// 몬스터 행동과 카운트 감소를 모두 생략하는 행동을 검사합니다.
-    /// </summary>
-    [Test]
-    public void EnemyTurnAndCountSkip_ReturnsDirectlyToPlayerTurn()
-    {
-        var flow = new RoundFlowStateMachine(10);
-        flow.StartFirstRound(3);
-
-        Assert.That(
-            flow.CommitPlayerAction(
-                executesEnemyTurn: false,
-                decreasesCount: false),
-            Is.True);
-
-        Assert.That(flow.Phase, Is.EqualTo(RoundPhase.PlayerTurn));
-        Assert.That(flow.RemainingCount, Is.EqualTo(10));
     }
 
     /// <summary>
@@ -111,9 +49,7 @@ public sealed class RoundFlowStateMachineTests
         var flow = new RoundFlowStateMachine(1);
         flow.StartFirstRound(1);
 
-        flow.CommitPlayerAction(
-            executesEnemyTurn: true,
-            decreasesCount: true);
+        flow.CompletePlayerTurn();
         flow.CompleteEnemyTurn();
 
         Assert.That(flow.Phase, Is.EqualTo(RoundPhase.RunEnded));

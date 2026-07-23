@@ -58,7 +58,6 @@ public readonly struct RoundFlowSnapshot
 public sealed class RoundFlowStateMachine
 {
     private readonly int startingCount;
-    private bool decreaseCountAfterEnemyTurn;
 
     /// <summary>
     /// 라운드마다 사용할 초기 카운트로 상태 머신을 생성합니다.
@@ -122,29 +121,23 @@ public sealed class RoundFlowStateMachine
     }
 
     /// <summary>
-    /// 플레이어 행동을 소모하고 설정에 따라 몬스터 행동과 카운트 감소를 진행합니다.
+    /// 턴을 소비한 플레이어 행동을 완료하고 몬스터 턴으로 전환합니다.
+    /// 턴을 소비하지 않는 행동에는 이 메서드를 호출하지 않습니다.
     /// </summary>
-    public bool CommitPlayerAction(bool executesEnemyTurn, bool decreasesCount)
+    public bool CompletePlayerTurn()
     {
         if (Phase != RoundPhase.PlayerTurn)
         {
             return false;
         }
 
-        if (!executesEnemyTurn)
-        {
-            CompletePlayerAction(decreasesCount);
-            return true;
-        }
-
-        decreaseCountAfterEnemyTurn = decreasesCount;
         Phase = RoundPhase.EnemyTurn;
         PublishState();
         return true;
     }
 
     /// <summary>
-    /// 몬스터 행동이 모두 끝난 뒤 예약된 카운트 감소를 적용하고 다음 상태를 결정합니다.
+    /// 몬스터 턴 처리를 끝내고 카운트를 1 감소시킨 뒤 다음 상태를 결정합니다.
     /// </summary>
     public bool CompleteEnemyTurn()
     {
@@ -153,10 +146,16 @@ public sealed class RoundFlowStateMachine
             return false;
         }
 
-        bool decreasesCount = decreaseCountAfterEnemyTurn;
-        decreaseCountAfterEnemyTurn = false;
-        CompletePlayerAction(decreasesCount);
+        RemainingCount = Math.Max(0, RemainingCount - 1);
 
+        if (RemainingCount <= 0)
+        {
+            EndRun(RoundResolution.CountExpired);
+            return true;
+        }
+
+        Phase = RoundPhase.PlayerTurn;
+        PublishState();
         return true;
     }
 
@@ -212,28 +211,7 @@ public sealed class RoundFlowStateMachine
     {
         AliveEnemyCount = enemyCount;
         RemainingCount = startingCount;
-        decreaseCountAfterEnemyTurn = false;
         Resolution = RoundResolution.None;
-        Phase = RoundPhase.PlayerTurn;
-        PublishState();
-    }
-
-    /// <summary>
-    /// 몬스터 행동 여부와 관계없이 플레이어 행동 이후의 카운트 및 패배 판정을 처리합니다.
-    /// </summary>
-    private void CompletePlayerAction(bool decreasesCount)
-    {
-        if (decreasesCount)
-        {
-            RemainingCount = Math.Max(0, RemainingCount - 1);
-        }
-
-        if (RemainingCount <= 0)
-        {
-            EndRun(RoundResolution.CountExpired);
-            return;
-        }
-
         Phase = RoundPhase.PlayerTurn;
         PublishState();
     }
@@ -244,7 +222,6 @@ public sealed class RoundFlowStateMachine
     private void ClearRound()
     {
         AliveEnemyCount = 0;
-        decreaseCountAfterEnemyTurn = false;
         Resolution = RoundResolution.Cleared;
         Phase = RoundPhase.BetweenRounds;
         PublishState();
@@ -255,7 +232,6 @@ public sealed class RoundFlowStateMachine
     /// </summary>
     private void EndRun(RoundResolution resolution)
     {
-        decreaseCountAfterEnemyTurn = false;
         Resolution = resolution;
         Phase = RoundPhase.RunEnded;
         PublishState();

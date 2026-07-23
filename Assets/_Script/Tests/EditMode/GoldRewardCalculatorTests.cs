@@ -6,7 +6,7 @@ using NUnit.Framework;
 public sealed class GoldRewardCalculatorTests
 {
     private static readonly GoldRewardRules Rules =
-        new GoldRewardRules(0.3f, 0.025f, 2f);
+        new GoldRewardRules(0.3f, 0.025f, 2f, 0.1f);
 
     /// <summary>
     /// 일반 보상이 기준 골드의 70퍼센트부터 130퍼센트까지 나오는지 검사합니다.
@@ -32,7 +32,7 @@ public sealed class GoldRewardCalculatorTests
     }
 
     /// <summary>
-    /// 희귀 보상이 일반 최댓값 다음 값부터 기준 골드 두 배까지 나오는지 검사합니다.
+    /// 희귀 보상이 기준 골드 두 배를 중심으로 10퍼센트 오차 범위인지 검사합니다.
     /// </summary>
     [Test]
     public void JackpotReward_UsesExclusiveHighRange()
@@ -48,8 +48,8 @@ public sealed class GoldRewardCalculatorTests
             jackpotRoll: 0d,
             amountRoll: 1d);
 
-        Assert.That(minimum.Amount, Is.EqualTo(131));
-        Assert.That(maximum.Amount, Is.EqualTo(200));
+        Assert.That(minimum.Amount, Is.EqualTo(180));
+        Assert.That(maximum.Amount, Is.EqualTo(220));
         Assert.That(minimum.IsJackpot, Is.True);
         Assert.That(maximum.IsJackpot, Is.True);
     }
