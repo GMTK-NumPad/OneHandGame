@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13b75c95f34a00d4e8c04f76b73312e6, type: 3}
+  m_Name: Warning_R&V
+  m_EditorClassIdentifier: Unity.2D.Tilemap.Extras::UnityEngine.Tilemaps.AnimatedTile
+  m_AnimatedSprites:
+  - {fileID: 5989202734685205691, guid: b0e43b1c189d89f429da58ae753c78e2, type: 3}
+  - {fileID: 1179664528, guid: b0e43b1c189d89f429da58ae753c78e2, type: 3}
+  - {fileID: 1748519383, guid: b0e43b1c189d89f429da58ae753c78e2, type: 3}
+  - {fileID: -852105758, guid: b0e43b1c189d89f429da58ae753c78e2, type: 3}
+  - {fileID: -971808522, guid: b0e43b1c189d89f429da58ae753c78e2, type: 3}
+  - {fileID: 1585542877, guid: b0e43b1c189d89f429da58ae753c78e2, type: 3}
+  - {fileID: 1127901277, guid: b0e43b1c189d89f429da58ae753c78e2, type: 3}
+  - {fileID: 2024478005, guid: b0e43b1c189d89f429da58ae753c78e2, type: 3}
+  m_MinSpeed: 5
+  m_MaxSpeed: 5
+  m_AnimationStartTime: 0
+  m_AnimationStartFrame: 0
+  m_TileColliderType: 0
+  m_TileAnimationFlags: 0
