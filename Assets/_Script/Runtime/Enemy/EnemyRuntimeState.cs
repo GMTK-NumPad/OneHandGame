@@ -23,6 +23,7 @@ public sealed class EnemyRuntimeState
         CurrentHealth = definition.MaxHealth;
         GoldReward = goldReward.Amount;
         HasJackpotReward = goldReward.IsJackpot;
+        FacingDirection = new GridPosition(1, 0);
     }
 
     public EnemyDefinition Definition => definition;
@@ -35,6 +36,7 @@ public sealed class EnemyRuntimeState
     public int StunRemaining { get; private set; }
     public bool HasCastingTarget { get; private set; }
     public GridPosition CastingTarget { get; private set; }
+    public GridPosition FacingDirection { get; private set; }
     public bool IsDefeated => CurrentHealth <= 0;
     public bool IsStunned => StunRemaining > 0;
     public bool IsCasting => HasCastingTarget;
@@ -50,8 +52,62 @@ public sealed class EnemyRuntimeState
         GridPosition enemyPosition,
         GridPosition targetPosition)
     {
-        return enemyPosition.ChebyshevDistanceTo(targetPosition)
-            <= definition.ActionRange;
+        return EnemyRangeCalculator.IsInActionRange(
+            enemyPosition,
+            targetPosition,
+            definition.ActionRange);
+    }
+
+    /// <summary>
+    /// 대상 방향을 대각선 포함 8방향으로 정규화하여 몬스터의 논리적 방향으로 저장합니다.
+    /// </summary>
+    public bool FaceTowards(
+        GridPosition enemyPosition,
+        GridPosition targetPosition)
+    {
+        return SetFacingDirection(
+            new GridPosition(
+                Math.Sign(
+                    targetPosition.X - enemyPosition.X),
+                Math.Sign(
+                    targetPosition.Y - enemyPosition.Y)));
+    }
+
+    /// <summary>
+    /// 이동 또는 행동 방향을 대각선 포함 단위 방향으로 저장합니다.
+    /// </summary>
+    public bool SetFacingDirection(GridPosition direction)
+    {
+        int normalizedX = Math.Sign(direction.X);
+        int normalizedY = Math.Sign(direction.Y);
+
+        if (normalizedX == 0 && normalizedY == 0)
+        {
+            return false;
+        }
+
+        FacingDirection = new GridPosition(
+            normalizedX,
+            normalizedY);
+        return true;
+    }
+
+    /// <summary>
+    /// 대상 타일이 정의된 캐스팅 범위에 포함되는지 확인합니다.
+    /// </summary>
+    public bool IsCastingConditionMet(
+        GridPosition enemyPosition,
+        GridPosition targetPosition)
+    {
+        return definition.IsCaster
+            && EnemyRangeCalculator.IsInCastingTriggerRange(
+                enemyPosition,
+                targetPosition,
+                definition.CastingRangeShape,
+                definition.CastingRange,
+                definition.CastingRangeWidth,
+                definition.CastingRangeOffsets,
+                FacingDirection);
     }
 
     /// <summary>

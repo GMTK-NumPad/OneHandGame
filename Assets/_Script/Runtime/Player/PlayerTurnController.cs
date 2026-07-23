@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -12,6 +13,8 @@ public sealed class PlayerTurnController : MonoBehaviour
 
     private BoardActor playerActor;
     private PlayerStatsController playerStatsController;
+    private RoundFlowStateMachine subscribedRoundFlow;
+    private Coroutine stunnedTurnCoroutine;
     private bool isResolvingAction;
 
     public BoardActor PlayerActor => playerActor;
@@ -66,6 +69,14 @@ public sealed class PlayerTurnController : MonoBehaviour
             combatBootstrap.CombatInitialized -=
                 HandleCombatInitialized;
         }
+
+        if (stunnedTurnCoroutine != null)
+        {
+            StopCoroutine(stunnedTurnCoroutine);
+            stunnedTurnCoroutine = null;
+        }
+
+        UnsubscribeRoundFlow();
     }
 
     /// <summary>
@@ -77,6 +88,7 @@ public sealed class PlayerTurnController : MonoBehaviour
             && combatBootstrap.IsInitialized)
         {
             BindSpawnedPlayer();
+            SubscribeRoundFlow();
         }
     }
 
@@ -157,6 +169,7 @@ public sealed class PlayerTurnController : MonoBehaviour
     private void HandleCombatInitialized()
     {
         BindSpawnedPlayer();
+        SubscribeRoundFlow();
     }
 
     /// <summary>
@@ -181,6 +194,98 @@ public sealed class PlayerTurnController : MonoBehaviour
             Debug.LogError(
                 "PlayerTurnController could not bind the spawned player and runtime stats.",
                 this);
+        }
+    }
+
+    /// <summary>
+    /// 현재 전투의 라운드 상태 변경을 구독하고 이미 시작된 플레이어 턴도 확인합니다.
+    /// </summary>
+    private void SubscribeRoundFlow()
+    {
+        RoundFlowStateMachine roundFlow =
+            combatBootstrap != null
+                ? combatBootstrap.RoundFlow
+                : null;
+
+        if (ReferenceEquals(
+                subscribedRoundFlow,
+                roundFlow))
+        {
+            return;
+        }
+
+        UnsubscribeRoundFlow();
+        subscribedRoundFlow = roundFlow;
+
+        if (subscribedRoundFlow == null)
+        {
+            return;
+        }
+
+        subscribedRoundFlow.StateChanged +=
+            HandleRoundStateChanged;
+        HandleRoundStateChanged(
+            subscribedRoundFlow.Snapshot);
+    }
+
+    /// <summary>
+    /// 현재 구독 중인 라운드 상태 이벤트를 해제합니다.
+    /// </summary>
+    private void UnsubscribeRoundFlow()
+    {
+        if (subscribedRoundFlow == null)
+        {
+            return;
+        }
+
+        subscribedRoundFlow.StateChanged -=
+            HandleRoundStateChanged;
+        subscribedRoundFlow = null;
+    }
+
+    /// <summary>
+    /// 기절한 상태로 플레이어 턴이 시작되면 다음 프레임에 해당 턴을 건너뛰도록 예약합니다.
+    /// </summary>
+    private void HandleRoundStateChanged(
+        RoundFlowSnapshot snapshot)
+    {
+        if (snapshot.Phase != RoundPhase.PlayerTurn
+            || PlayerStats == null
+            || !PlayerStats.IsStunned
+            || stunnedTurnCoroutine != null)
+        {
+            return;
+        }
+
+        stunnedTurnCoroutine =
+            StartCoroutine(SkipStunnedPlayerTurn());
+    }
+
+    /// <summary>
+    /// 이전 몬스터 턴 코루틴이 끝난 뒤 기절 1턴을 소비하고 플레이어 행동 없이 몬스터 턴으로 전환합니다.
+    /// </summary>
+    private IEnumerator SkipStunnedPlayerTurn()
+    {
+        yield return null;
+
+        try
+        {
+            PlayerRuntimeStats stats = PlayerStats;
+
+            if (subscribedRoundFlow == null
+                || subscribedRoundFlow.Phase
+                    != RoundPhase.PlayerTurn
+                || stats == null
+                || !stats.TryConsumeStunnedTurn())
+            {
+                yield break;
+            }
+
+            subscribedRoundFlow.CompletePlayerTurn();
+        }
+        finally
+        {
+            stunnedTurnCoroutine = null;
         }
     }
 
@@ -239,7 +344,8 @@ public sealed class PlayerTurnController : MonoBehaviour
             || !playerActor.IsPlaced
             || playerStatsController == null
             || playerStatsController.RuntimeStats == null
-            || playerStatsController.RuntimeStats.IsDefeated)
+            || playerStatsController.RuntimeStats.IsDefeated
+            || playerStatsController.RuntimeStats.IsStunned)
         {
             return false;
         }

@@ -92,6 +92,26 @@ public sealed class PlayerRuntimeStatsTests
     }
 
     /// <summary>
+    /// 플레이어 기절은 더 긴 지속시간을 유지하고 실제로 건너뛴 턴마다 1씩 소비되는지 검사합니다.
+    /// </summary>
+    [Test]
+    public void Stun_IsConsumedOnlyWhenPlayerTurnIsSkipped()
+    {
+        PlayerRuntimeStats stats = definition.CreateRuntimeStats();
+
+        stats.AddStunTurns(2);
+        stats.AddStunTurns(1);
+
+        Assert.That(stats.IsStunned, Is.True);
+        Assert.That(stats.StunTurnsRemaining, Is.EqualTo(2));
+        Assert.That(stats.TryConsumeStunnedTurn(), Is.True);
+        Assert.That(stats.StunTurnsRemaining, Is.EqualTo(1));
+        Assert.That(stats.TryConsumeStunnedTurn(), Is.True);
+        Assert.That(stats.IsStunned, Is.False);
+        Assert.That(stats.TryConsumeStunnedTurn(), Is.False);
+    }
+
+    /// <summary>
     /// 무적은 Guard를 소비하지 않고 공격 피해를 막는지 검사합니다.
     /// </summary>
     [Test]

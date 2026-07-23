@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8acb290f92c348f2899390e70ac47a5e, type: 3}
+  m_Name: NormalAttackEnemy
+  m_EditorClassIdentifier: OneHandGame.Runtime::EnemyDefinition
+  displayName: Enemy
+  threat: 0
+  maxHealth: 2
+  attackPower: 1
+  actionRange: 1
+  speed: 1
+  baseGoldReward: 20
+  minimumSpawnDistanceFromPlayer: 0
+  minimumSpawnDistanceFromEnemies: 0
+  actionCooldownTurns: 0
+  hasCustomMovementPattern: 0
+  isCaster: 0
+  requiredCastingProgress: 1
+  castingRangeShape: 0
+  castingRange: 1
+  castingRangeWidth: 1
+  castingRangeOffsets: []
+  castingTargetType: 0
+  castingImpactShape: 0
+  castingImpactRange: 1
+  castingImpactOffsets: []
+  castingEffects:
+  - effectType: 1
+    amount: 1
+    durationTurns: 1

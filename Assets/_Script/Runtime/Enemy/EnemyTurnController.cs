@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 몬스터 턴에 Speed 순서대로 일반 공격 또는 기본 이동을 실행하고 턴 후 상태를 처리합니다.
+/// 몬스터 턴에 Speed 순서대로 캐스팅, 일반 공격 또는 기본 이동을 실행하고 턴 후 상태를 처리합니다.
 /// </summary>
 public sealed class EnemyTurnController : MonoBehaviour
 {
@@ -16,6 +16,11 @@ public sealed class EnemyTurnController : MonoBehaviour
     private RoundFlowStateMachine subscribedRoundFlow;
     private Coroutine enemyTurnCoroutine;
     private bool isResolvingTurn;
+
+    public event Action<EnemyActor> EnemyActionCompleted;
+    public event Action<EnemyActor> EnemyCastingStarted;
+    public event Action<EnemyActor, int, int> EnemyCastingProgressed;
+    public event Action<EnemyActor, GridPosition> EnemyCastingReleased;
 
     /// <summary>
     /// 컴포넌트를 처음 추가할 때 같은 GameObject의 전투 컴포넌트를 자동으로 연결합니다.
@@ -154,6 +159,7 @@ public sealed class EnemyTurnController : MonoBehaviour
                     enemyState,
                     playerActor,
                     playerStats);
+                EnemyActionCompleted?.Invoke(enemy);
 
                 if (delayBetweenEnemies > 0f
                     && subscribedRoundFlow.Phase
@@ -181,7 +187,7 @@ public sealed class EnemyTurnController : MonoBehaviour
     }
 
     /// <summary>
-    /// 한 몬스터의 일반 공격 또는 기본 이동을 실행하고 해당 행동 연출이 끝날 때까지 기다립니다.
+    /// 한 몬스터의 캐스팅, 일반 공격 또는 기본 이동을 실행하고 해당 행동 연출이 끝날 때까지 기다립니다.
     /// </summary>
     private IEnumerator ResolveEnemyAction(
         EnemyActor enemy,
@@ -194,12 +200,49 @@ public sealed class EnemyTurnController : MonoBehaviour
             yield break;
         }
 
+        if (state.IsCasting)
+        {
+            yield return ResolveCastingAction(
+                enemy,
+                state,
+                playerActor,
+                playerStats);
+            yield break;
+        }
+
+        state.FaceTowards(
+            enemy.BoardActor.Position,
+            playerActor.Position);
+
+        bool castingConditionMet =
+            state.IsCastingConditionMet(
+                enemy.BoardActor.Position,
+                playerActor.Position);
+
+        if (state.CanAttackOrCast
+            && castingConditionMet
+            && state.TryBeginCasting(
+                playerActor.Position))
+        {
+            EnemyCastingStarted?.Invoke(enemy);
+            yield return enemy.ActionAnimator
+                .PlayCastingStart();
+            yield break;
+        }
+
+        if (state.Definition.IsCaster
+            && castingConditionMet)
+        {
+            yield break;
+        }
+
         bool playerInActionRange =
             state.IsInActionRange(
                 enemy.BoardActor.Position,
                 playerActor.Position);
 
-        if (playerInActionRange)
+        if (!state.Definition.IsCaster
+            && playerInActionRange)
         {
             if (state.CanAttackOrCast)
             {
@@ -241,6 +284,12 @@ public sealed class EnemyTurnController : MonoBehaviour
         {
             Vector3 startWorld =
                 enemy.transform.position;
+            GridPosition startPosition =
+                enemy.BoardActor.Position;
+            state.SetFacingDirection(
+                new GridPosition(
+                    nextStep.X - startPosition.X,
+                    nextStep.Y - startPosition.Y));
 
             if (enemy.BoardActor.TryMove(nextStep))
             {
@@ -248,6 +297,232 @@ public sealed class EnemyTurnController : MonoBehaviour
                     startWorld,
                     enemy.transform.position);
             }
+        }
+    }
+
+    /// <summary>
+    /// 진행 중인 캐스팅을 올리고 완료됐다면 처음 저장한 타일에 제자리 공격을 발동합니다.
+    /// </summary>
+    private IEnumerator ResolveCastingAction(
+        EnemyActor enemy,
+        EnemyRuntimeState state,
+        BoardActor playerActor,
+        PlayerRuntimeStats playerStats)
+    {
+        bool isReadyToRelease =
+            state.AdvanceCasting();
+        EnemyCastingProgressed?.Invoke(
+            enemy,
+            state.CurrentCastingProgress,
+            state.Definition.RequiredCastingProgress);
+
+        if (!isReadyToRelease)
+        {
+            yield return enemy.ActionAnimator
+                .PlayCastingProgress();
+            yield break;
+        }
+
+        GridPosition fixedTarget =
+            state.CastingTarget;
+        EnemyCastingReleased?.Invoke(
+            enemy,
+            fixedTarget);
+        bool impactApplied = false;
+        Action applyImpact = () =>
+        {
+            if (impactApplied)
+            {
+                return;
+            }
+
+            impactApplied = true;
+            ApplyCastingEffects(
+                state,
+                fixedTarget,
+                playerActor,
+                playerStats);
+        };
+
+        yield return enemy.ActionAnimator
+            .PlayCastingRelease(applyImpact);
+        applyImpact();
+    }
+
+    /// <summary>
+    /// 캐스팅을 완료하고 대상 지정 방식에 따라 효과 목록을 플레이어 또는 범위 내 액터에게 적용합니다.
+    /// </summary>
+    private void ApplyCastingEffects(
+        EnemyRuntimeState state,
+        GridPosition fixedTarget,
+        BoardActor playerActor,
+        PlayerRuntimeStats playerStats)
+    {
+        state.CompleteCastingAction();
+        EnemyDefinition definition = state.Definition;
+
+        if (definition.CastingTargetType
+            == EnemyCastingTargetType.DirectPlayer)
+        {
+            ApplyCastingEffectsToPlayer(
+                definition.CastingEffects,
+                playerStats);
+            ReportPlayerDefeatIfNeeded(playerStats);
+            return;
+        }
+
+        bool playerInImpactRange =
+            playerActor != null
+            && playerActor.IsPlaced
+            && EnemyRangeCalculator.IsInCastingImpactRange(
+                fixedTarget,
+                playerActor.Position,
+                definition.CastingImpactShape,
+                definition.CastingImpactRange,
+                definition.CastingImpactOffsets);
+
+        if (playerInImpactRange)
+        {
+            ApplyCastingEffectsToPlayer(
+                definition.CastingEffects,
+                playerStats);
+        }
+
+        int defeatedEnemyCount =
+            ApplyCastingEffectsToEnemies(
+                fixedTarget,
+                definition);
+
+        if (playerStats.IsDefeated)
+        {
+            subscribedRoundFlow.ReportPlayerDefeated();
+            return;
+        }
+
+        if (defeatedEnemyCount > 0)
+        {
+            subscribedRoundFlow.ReportEnemyDefeated(
+                defeatedEnemyCount);
+        }
+    }
+
+    /// <summary>
+    /// 캐스팅 효과 목록을 플레이어에게 순서대로 적용하며 패배하면 이후 효과 적용을 중단합니다.
+    /// </summary>
+    private static void ApplyCastingEffectsToPlayer(
+        IReadOnlyList<EnemyCastingEffectData> effects,
+        PlayerRuntimeStats playerStats)
+    {
+        if (effects == null || playerStats == null)
+        {
+            return;
+        }
+
+        foreach (EnemyCastingEffectData effect in effects)
+        {
+            if (playerStats.IsDefeated)
+            {
+                break;
+            }
+
+            if (effect == null)
+            {
+                continue;
+            }
+
+            switch (effect.EffectType)
+            {
+                case EnemyCastingEffectType.Stun:
+                    playerStats.AddStunTurns(
+                        effect.DurationTurns);
+                    break;
+
+                default:
+                    playerStats.TakeAttackDamage(
+                        effect.Amount);
+                    break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 범위 안의 몬스터에게 캐스팅 효과 목록을 순서대로 적용하고 이번 발동의 처치 수를 반환합니다.
+    /// </summary>
+    private int ApplyCastingEffectsToEnemies(
+        GridPosition fixedTarget,
+        EnemyDefinition definition)
+    {
+        var targets = new List<EnemyActor>(
+            enemySpawner.SpawnedEnemies);
+        int defeatedEnemyCount = 0;
+        IReadOnlyList<EnemyCastingEffectData> effects =
+            definition.CastingEffects;
+
+        if (effects == null)
+        {
+            return 0;
+        }
+
+        foreach (EnemyActor target in targets)
+        {
+            if (target == null
+                || !target.IsInitialized
+                || target.IsDefeated
+                || !target.BoardActor.IsPlaced
+                || !EnemyRangeCalculator.IsInCastingImpactRange(
+                    fixedTarget,
+                    target.BoardActor.Position,
+                    definition.CastingImpactShape,
+                    definition.CastingImpactRange,
+                    definition.CastingImpactOffsets))
+            {
+                continue;
+            }
+
+            foreach (EnemyCastingEffectData effect in effects)
+            {
+                if (target.IsDefeated)
+                {
+                    break;
+                }
+
+                if (effect == null)
+                {
+                    continue;
+                }
+
+                switch (effect.EffectType)
+                {
+                    case EnemyCastingEffectType.Stun:
+                        target.RuntimeState.ApplyStun(
+                            effect.DurationTurns);
+                        break;
+
+                    default:
+                        target.TakeDamage(
+                            effect.Amount);
+                        break;
+                }
+            }
+
+            if (target.IsDefeated)
+            {
+                defeatedEnemyCount++;
+            }
+        }
+
+        return defeatedEnemyCount;
+    }
+
+    /// <summary>
+    /// 플레이어 체력이 모두 소진되었다면 현재 전투 흐름에 패배를 보고합니다.
+    /// </summary>
+    private void ReportPlayerDefeatIfNeeded(
+        PlayerRuntimeStats playerStats)
+    {
+        if (playerStats.IsDefeated)
+        {
+            subscribedRoundFlow.ReportPlayerDefeated();
         }
     }
 

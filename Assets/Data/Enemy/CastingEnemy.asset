@@ -10,18 +10,34 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8acb290f92c348f2899390e70ac47a5e, type: 3}
-  m_Name: EnemyDefinition
+  m_Name: CastingEnemy
   m_EditorClassIdentifier: OneHandGame.Runtime::EnemyDefinition
   displayName: Enemy
   threat: 0
-  maxHealth: 2
+  maxHealth: 4
   attackPower: 1
-  actionRange: 1
-  speed: 1
-  baseGoldReward: 20
+  actionRange: 2
+  speed: 3
+  baseGoldReward: 50
   minimumSpawnDistanceFromPlayer: 0
   minimumSpawnDistanceFromEnemies: 0
-  actionCooldownTurns: 0
+  actionCooldownTurns: 1
   hasCustomMovementPattern: 0
-  isCaster: 0
+  isCaster: 1
   requiredCastingProgress: 1
+  castingRangeShape: 5
+  castingRange: 3
+  castingRangeWidth: 1
+  castingRangeOffsets: []
+  castingTargetType: 0
+  castingImpactShape: 1
+  castingImpactRange: 2
+  castingImpactOffsets:
+  - {x: 0, y: 1}
+  - {x: 1, y: 0}
+  - {x: 0, y: -1}
+  - {x: -1, y: 0}
+  castingEffects:
+  - effectType: 0
+    amount: 2
+    durationTurns: 1

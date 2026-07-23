@@ -23,13 +23,16 @@ public sealed class PlayerRuntimeStats
         CurrentHealth = MaxHealth;
         InvincibleTurnsRemaining = 0;
         GuardCount = 0;
+        StunTurnsRemaining = 0;
     }
 
     public int CurrentHealth { get; private set; }
     public int InvincibleTurnsRemaining { get; private set; }
     public int GuardCount { get; private set; }
+    public int StunTurnsRemaining { get; private set; }
     public int RoundAttackPowerBonus => roundAttackPowerBonus;
     public bool IsDefeated => CurrentHealth <= 0;
+    public bool IsStunned => StunTurnsRemaining > 0;
 
     public int MaxHealth => Mathf.Max(
         1,
@@ -117,6 +120,30 @@ public sealed class PlayerRuntimeStats
         InvincibleTurnsRemaining = Mathf.Max(
             0,
             InvincibleTurnsRemaining - 1);
+    }
+
+    /// <summary>
+    /// 플레이어에게 적용할 기절 잔여 턴을 현재 값과 새 값 중 큰 값으로 갱신합니다.
+    /// </summary>
+    public void AddStunTurns(int turns)
+    {
+        StunTurnsRemaining = Mathf.Max(
+            StunTurnsRemaining,
+            Mathf.Max(0, turns));
+    }
+
+    /// <summary>
+    /// 기절이 남아 있다면 플레이어 턴 한 번을 소비하고 건너뛰어야 함을 반환합니다.
+    /// </summary>
+    public bool TryConsumeStunnedTurn()
+    {
+        if (StunTurnsRemaining <= 0)
+        {
+            return false;
+        }
+
+        StunTurnsRemaining--;
+        return true;
     }
 
     /// <summary>

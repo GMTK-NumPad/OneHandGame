@@ -17,6 +17,7 @@ public sealed class EnemySpawner : MonoBehaviour
 
     public event Action<EnemyActor> EnemySpawned;
     public event Action<EnemyActor> EnemyDefeated;
+    public event Action EnemiesCleared;
     public IReadOnlyList<EnemyActor> SpawnedEnemies => spawnedEnemies;
     public BoardActor PlayerActor => playerActor;
 
@@ -160,6 +161,7 @@ public sealed class EnemySpawner : MonoBehaviour
         }
 
         spawnedEnemies.Clear();
+        EnemiesCleared?.Invoke();
     }
 
     /// <summary>

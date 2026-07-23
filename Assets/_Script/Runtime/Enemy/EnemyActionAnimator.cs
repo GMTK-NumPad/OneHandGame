@@ -22,6 +22,12 @@ public sealed class EnemyActionAnimator : MonoBehaviour
     [SerializeField, Min(0f)] private float attackLungeDistance = 0.2f;
     [SerializeField, Range(0f, 30f)] private float attackTiltAngle = 6f;
 
+    [Header("Casting")]
+    [SerializeField, Min(0f)] private float castingStartDuration = 0.06f;
+    [SerializeField, Min(0f)] private float castingProgressDuration = 0.04f;
+    [SerializeField, Min(0f)] private float castingReleaseDuration = 0.08f;
+    [SerializeField, Min(1f)] private float castingScale = 1.15f;
+
     /// <summary>
     /// 컴포넌트를 추가할 때 Visual 자식과 그 아래 SpriteRenderer를 자동으로 연결합니다.
     /// </summary>
@@ -72,6 +78,11 @@ public sealed class EnemyActionAnimator : MonoBehaviour
 
         while (elapsedTime < moveDuration)
         {
+            if (visualRoot == null)
+            {
+                yield break;
+            }
+
             elapsedTime += Time.deltaTime;
             float progress = Mathf.Clamp01(
                 elapsedTime / moveDuration);
@@ -94,8 +105,11 @@ public sealed class EnemyActionAnimator : MonoBehaviour
             yield return null;
         }
 
-        visualRoot.localPosition = originalLocalPosition;
-        visualRoot.localRotation = originalLocalRotation;
+        if (visualRoot != null)
+        {
+            visualRoot.localPosition = originalLocalPosition;
+            visualRoot.localRotation = originalLocalRotation;
+        }
     }
 
     /// <summary>
@@ -139,6 +153,11 @@ public sealed class EnemyActionAnimator : MonoBehaviour
 
         while (elapsedTime < attackDuration)
         {
+            if (visualRoot == null)
+            {
+                yield break;
+            }
+
             elapsedTime += Time.deltaTime;
             float progress = Mathf.Clamp01(
                 elapsedTime / attackDuration);
@@ -175,8 +194,102 @@ public sealed class EnemyActionAnimator : MonoBehaviour
             applyImpact?.Invoke();
         }
 
-        visualRoot.localPosition = originalLocalPosition;
-        visualRoot.localRotation = originalLocalRotation;
+        if (visualRoot != null)
+        {
+            visualRoot.localPosition = originalLocalPosition;
+            visualRoot.localRotation = originalLocalRotation;
+        }
+    }
+
+    /// <summary>
+    /// 캐스팅을 시작할 때 몬스터 시각 오브젝트를 한 번 크게 맥동시킵니다.
+    /// </summary>
+    public IEnumerator PlayCastingStart()
+    {
+        yield return PlayCastingPulse(
+            castingStartDuration,
+            applyImpact: null);
+    }
+
+    /// <summary>
+    /// 캐스팅 진행도가 증가할 때 짧은 맥동 연출을 재생합니다.
+    /// </summary>
+    public IEnumerator PlayCastingProgress()
+    {
+        yield return PlayCastingPulse(
+            castingProgressDuration,
+            applyImpact: null);
+    }
+
+    /// <summary>
+    /// 캐스팅 발동 연출의 가장 큰 크기에서 고정 대상 타일 효과를 호출합니다.
+    /// </summary>
+    public IEnumerator PlayCastingRelease(
+        Action applyImpact)
+    {
+        yield return PlayCastingPulse(
+            castingReleaseDuration,
+            applyImpact);
+    }
+
+    /// <summary>
+    /// 지정된 시간 동안 커졌다 돌아오며 중간 시점에 선택적인 효과를 한 번 호출합니다.
+    /// </summary>
+    private IEnumerator PlayCastingPulse(
+        float duration,
+        Action applyImpact)
+    {
+        FindVisualReferences();
+
+        if (visualRoot == null
+            || duration <= 0f
+            || !isActiveAndEnabled)
+        {
+            applyImpact?.Invoke();
+            yield break;
+        }
+
+        Vector3 originalScale = visualRoot.localScale;
+        float elapsedTime = 0f;
+        bool impactApplied = false;
+
+        while (elapsedTime < duration)
+        {
+            if (visualRoot == null)
+            {
+                yield break;
+            }
+
+            elapsedTime += Time.deltaTime;
+            float progress = Mathf.Clamp01(
+                elapsedTime / duration);
+            float pulse =
+                Mathf.Sin(progress * Mathf.PI);
+            visualRoot.localScale =
+                originalScale
+                * Mathf.Lerp(
+                    1f,
+                    castingScale,
+                    pulse);
+
+            if (!impactApplied && progress >= 0.5f)
+            {
+                impactApplied = true;
+                applyImpact?.Invoke();
+            }
+
+            yield return null;
+        }
+
+        if (!impactApplied)
+        {
+            applyImpact?.Invoke();
+        }
+
+        if (visualRoot != null)
+        {
+            visualRoot.localScale = originalScale;
+        }
     }
 
     /// <summary>
