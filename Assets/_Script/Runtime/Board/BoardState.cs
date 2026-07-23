@@ -4,7 +4,7 @@ using System.Collections.Generic;
 /// <summary>
 /// 보드의 이동 가능 타일과 액터 점유 상태를 Unity 씬과 독립적으로 관리합니다.
 /// </summary>
-public sealed class BoardState
+public sealed class BoardState : IBoardQuery
 {
     private readonly bool[,] walkableTiles;
     private readonly Dictionary<GridPosition, int> occupants = new();

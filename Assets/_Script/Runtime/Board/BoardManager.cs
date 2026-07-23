@@ -5,7 +5,7 @@ using UnityEngine.Tilemaps;
 /// <summary>
 /// 씬의 Tilemap과 논리 보드 좌표를 연결하고 액터 점유 상태를 관리합니다.
 /// </summary>
-public sealed class BoardManager : MonoBehaviour
+public sealed class BoardManager : MonoBehaviour, IBoardQuery
 {
     [Header("Board")]
     [SerializeField] private Vector2Int boardSize = new(7, 7);
@@ -19,6 +19,8 @@ public sealed class BoardManager : MonoBehaviour
     private BoardState boardState;
 
     public Vector2Int BoardSize => boardSize;
+    public int Width => EnsureBoardState().Width;
+    public int Height => EnsureBoardState().Height;
     public GridPosition CenterPosition => EnsureBoardState().Center;
 
     /// <summary>
@@ -74,6 +76,34 @@ public sealed class BoardManager : MonoBehaviour
     public bool CanEnter(GridPosition position)
     {
         return EnsureBoardState().CanEnter(position);
+    }
+
+    /// <summary>
+    /// 보드 좌표가 현재 보드 크기 안에 있는지 확인합니다.
+    /// </summary>
+    public bool IsInside(GridPosition position)
+    {
+        return EnsureBoardState().IsInside(position);
+    }
+
+    /// <summary>
+    /// 보드 좌표가 이동 가능한 지형인지 확인합니다.
+    /// </summary>
+    public bool IsWalkable(GridPosition position)
+    {
+        return EnsureBoardState().IsWalkable(position);
+    }
+
+    /// <summary>
+    /// 지정한 보드 좌표를 점유 중인 액터의 Instance ID를 가져옵니다.
+    /// </summary>
+    public bool TryGetOccupant(
+        GridPosition position,
+        out int actorId)
+    {
+        return EnsureBoardState().TryGetOccupant(
+            position,
+            out actorId);
     }
 
     /// <summary>

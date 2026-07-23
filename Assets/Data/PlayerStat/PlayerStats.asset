@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: PlayerStats
   m_EditorClassIdentifier: OneHandGame.Runtime::PlayerStatsDefinition
   displayName: Player
-  maxHealth: 5
-  attackPower: 1
+  maxHealth: 10
+  attackPower: 2
   moveRange: 1
-  attackRange: 1

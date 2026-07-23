@@ -1,65 +1,144 @@
-﻿using System.Collections;
-using UnityEngine;
+using System.Collections;
 using TMPro;
-using UnityEngine.InputSystem; // 새로운 Input System을 사용하기 위한 네임스페이스 추가!
+using UnityEngine;
 
-public class TMP_ScaleAnimator : MonoBehaviour
+/// <summary>
+/// TMP 숫자를 변경하고 설정된 곡선에 따라 크기 애니메이션을 재생합니다.
+/// </summary>
+public sealed class TMP_ScaleAnimator : MonoBehaviour
 {
     [Header("Components")]
-    public TextMeshPro textMesh;
-    private RectTransform rectTransform;
+    [SerializeField] private TMP_Text textMesh = null;
 
     [Header("Settings")]
-    public int targetNumber = 100;
-    public float animationDuration = 0.5f;
+    [SerializeField] private int targetNumber = 100;
+    [SerializeField, Min(0f)] private float animationDuration = 0.5f;
 
-    [Header("Anim Graph (Animation Curve)")]
-    public AnimationCurve scaleCurve;
+    [Header("Anim Graph")]
+    [SerializeField] private AnimationCurve scaleCurve = null;
 
+    private RectTransform rectTransform;
     private Vector3 originalScale;
     private Coroutine scaleCoroutine;
 
-    void Start()
+    public int TargetNumber => targetNumber;
+
+    /// <summary>
+    /// TMP와 RectTransform 참조 및 원래 크기를 준비합니다.
+    /// </summary>
+    private void Awake()
     {
-        if (textMesh != null)
-        {
-            rectTransform = textMesh.GetComponent<RectTransform>();
-            originalScale = rectTransform.localScale;
-        }
+        InitializeReferences();
     }
 
-    void Update()
+    /// <summary>
+    /// 숫자를 즉시 갱신하고 요청된 경우 크기 애니메이션을 처음부터 재생합니다.
+    /// </summary>
+    public void SetNumber(
+        int number,
+        bool animate = true)
     {
-        // 🚨 변경된 부분: 새로운 Input System 방식의 키보드 입력 감지
-        // 키보드가 연결되어 있는지 확인(null 체크)한 후, P키가 이번 프레임에 눌렸는지 확인합니다.
-        if (Keyboard.current != null && Keyboard.current.pKey.wasPressedThisFrame)
-        {
-            textMesh.text = targetNumber.ToString();
+        InitializeReferences();
+        targetNumber = number;
 
-            if (scaleCoroutine != null)
-            {
-                StopCoroutine(scaleCoroutine);
-            }
-            scaleCoroutine = StartCoroutine(AnimateScale());
+        if (textMesh == null)
+        {
+            Debug.LogError(
+                "TMP_ScaleAnimator requires a TMP_Text.",
+                this);
+            return;
         }
+
+        textMesh.SetText(number.ToString());
+
+        if (!animate
+            || !isActiveAndEnabled
+            || rectTransform == null
+            || animationDuration <= 0f)
+        {
+            ResetScale();
+            return;
+        }
+
+        if (scaleCoroutine != null)
+        {
+            StopCoroutine(scaleCoroutine);
+        }
+
+        ResetScale();
+        scaleCoroutine =
+            StartCoroutine(AnimateScale());
     }
 
+    /// <summary>
+    /// 비활성화될 때 진행 중인 애니메이션 상태를 원래 크기로 복원합니다.
+    /// </summary>
+    private void OnDisable()
+    {
+        scaleCoroutine = null;
+        ResetScale();
+    }
+
+    /// <summary>
+    /// 지정된 TMP를 찾고 크기를 변경할 RectTransform과 원래 크기를 저장합니다.
+    /// </summary>
+    private void InitializeReferences()
+    {
+        if (textMesh == null)
+        {
+            textMesh = GetComponent<TMP_Text>();
+        }
+
+        if (textMesh == null)
+        {
+            return;
+        }
+
+        RectTransform currentRectTransform =
+            textMesh.rectTransform;
+
+        if (rectTransform == currentRectTransform)
+        {
+            return;
+        }
+
+        rectTransform = currentRectTransform;
+        originalScale = rectTransform.localScale;
+    }
+
+    /// <summary>
+    /// 설정된 시간 동안 AnimationCurve의 배율을 TMP 원래 크기에 적용합니다.
+    /// </summary>
     private IEnumerator AnimateScale()
     {
         float elapsedTime = 0f;
 
         while (elapsedTime < animationDuration)
         {
-            elapsedTime += Time.deltaTime;
-
-            float progress = elapsedTime / animationDuration;
-            float curveValue = scaleCurve.Evaluate(progress);
-
-            rectTransform.localScale = originalScale * curveValue;
-
+            elapsedTime += Time.unscaledDeltaTime;
+            float progress = Mathf.Clamp01(
+                elapsedTime / animationDuration);
+            float curveValue =
+                scaleCurve != null
+                    ? scaleCurve.Evaluate(progress)
+                    : 1f;
+            rectTransform.localScale =
+                originalScale * curveValue;
             yield return null;
         }
 
-        rectTransform.localScale = originalScale;
+        ResetScale();
+        scaleCoroutine = null;
+    }
+
+    /// <summary>
+    /// TMP RectTransform을 애니메이션 시작 전 원래 크기로 되돌립니다.
+    /// </summary>
+    private void ResetScale()
+    {
+        if (rectTransform != null)
+        {
+            rectTransform.localScale = originalScale;
+        }
     }
 }

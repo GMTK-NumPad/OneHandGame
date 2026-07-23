@@ -9,7 +9,7 @@ public static class PlayerMovementPlanner
     /// 보드 상태를 변경하지 않고 한 번의 플레이어 방향 행동 결과를 계산합니다.
     /// </summary>
     public static PlayerMovementPlan CreatePlan(
-        BoardState board,
+        IBoardQuery board,
         int playerActorId,
         GridPosition start,
         GridPosition direction,
@@ -56,7 +56,7 @@ public static class PlayerMovementPlanner
     /// 장애물 없이 같은 직선에 있는 첫 번째 액터와 거리를 찾습니다.
     /// </summary>
     private static bool TryFindFirstTarget(
-        BoardState board,
+        IBoardQuery board,
         int playerActorId,
         GridPosition start,
         GridPosition direction,
@@ -137,7 +137,7 @@ public static class PlayerMovementPlanner
     /// 직선상에 몬스터가 없거나 장애물이 있을 때 기본 이동 거리만 계산합니다.
     /// </summary>
     private static PlayerMovementPlan CreateNormalMovePlan(
-        BoardState board,
+        IBoardQuery board,
         GridPosition start,
         GridPosition direction,
         int baseMoveRange)

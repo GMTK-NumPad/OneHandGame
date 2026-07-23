@@ -16,6 +16,7 @@ public sealed class EnemySpawner : MonoBehaviour
     private BoardActor playerActor;
 
     public event Action<EnemyActor> EnemySpawned;
+    public event Action<EnemyActor> EnemyDefeated;
     public IReadOnlyList<EnemyActor> SpawnedEnemies => spawnedEnemies;
     public BoardActor PlayerActor => playerActor;
 
@@ -135,6 +136,7 @@ public sealed class EnemySpawner : MonoBehaviour
         }
 
         spawnedEnemies.Add(instance);
+        instance.Defeated += HandleEnemyDefeated;
         spawnedEnemy = instance;
         EnemySpawned?.Invoke(instance);
         return true;
@@ -152,6 +154,7 @@ public sealed class EnemySpawner : MonoBehaviour
                 continue;
             }
 
+            enemy.Defeated -= HandleEnemyDefeated;
             enemy.BoardActor.RemoveFromBoard();
             DestroyEnemyObject(enemy);
         }
@@ -181,6 +184,27 @@ public sealed class EnemySpawner : MonoBehaviour
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// 처치된 몬스터를 스포너 목록에서 제거하고 외부 시스템에 알린 뒤 파괴합니다.
+    /// </summary>
+    private void HandleEnemyDefeated(EnemyActor enemy)
+    {
+        if (enemy == null)
+        {
+            return;
+        }
+
+        enemy.Defeated -= HandleEnemyDefeated;
+
+        if (!spawnedEnemies.Remove(enemy))
+        {
+            return;
+        }
+
+        EnemyDefeated?.Invoke(enemy);
+        DestroyEnemyObject(enemy);
     }
 
     /// <summary>

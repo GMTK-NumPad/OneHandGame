@@ -18,6 +18,7 @@ MonoBehaviour:
   attackPower: 1
   actionRange: 1
   speed: 1
+  baseGoldReward: 20
   minimumSpawnDistanceFromPlayer: 0
   minimumSpawnDistanceFromEnemies: 0
   actionCooldownTurns: 0
