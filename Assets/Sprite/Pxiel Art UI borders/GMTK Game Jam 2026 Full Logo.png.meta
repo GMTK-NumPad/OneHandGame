@@ -1,0 +1,468 @@
+fileFormatVersion: 2
+guid: 13e861b40438c4a49b39050791156b6d
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -4126897211208409240
+    second: GMTK Game Jam 2026 Full Logo_0
+  - first:
+      213: -7256838664147608332
+    second: GMTK Game Jam 2026 Full Logo_1
+  - first:
+      213: 578869160817033583
+    second: GMTK Game Jam 2026 Full Logo_2
+  - first:
+      213: 7041266530232902820
+    second: GMTK Game Jam 2026 Full Logo_3
+  - first:
+      213: -6898545215313277766
+    second: GMTK Game Jam 2026 Full Logo_4
+  - first:
+      213: -1192835780230450327
+    second: GMTK Game Jam 2026 Full Logo_5
+  - first:
+      213: 4828773292927620166
+    second: GMTK Game Jam 2026 Full Logo_6
+  - first:
+      213: -786355506454996769
+    second: GMTK Game Jam 2026 Full Logo_7
+  - first:
+      213: 2879379913125876798
+    second: GMTK Game Jam 2026 Full Logo_8
+  - first:
+      213: -265430703237352883
+    second: GMTK Game Jam 2026 Full Logo_9
+  - first:
+      213: 7417900730912207315
+    second: GMTK Game Jam 2026 Full Logo_10
+  - first:
+      213: -4073415501982153994
+    second: GMTK Game Jam 2026 Full Logo_11
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: GMTK Game Jam 2026 Full Logo_0
+      rect:
+        serializedVersion: 2
+        x: 65
+        y: 1517
+        width: 112
+        height: 157
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86f5f550ad05ab6c0800000000000000
+      internalID: -4126897211208409240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GMTK Game Jam 2026 Full Logo_1
+      rect:
+        serializedVersion: 2
+        x: 240
+        y: 1519
+        width: 135
+        height: 153
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4fc592feea78a4b90800000000000000
+      internalID: -7256838664147608332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GMTK Game Jam 2026 Full Logo_2
+      rect:
+        serializedVersion: 2
+        x: 428
+        y: 1474
+        width: 171
+        height: 244
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f618ded4f6e880800800000000000000
+      internalID: 578869160817033583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GMTK Game Jam 2026 Full Logo_3
+      rect:
+        serializedVersion: 2
+        x: 630
+        y: 1475
+        width: 171
+        height: 243
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a4216f5a9a97b160800000000000000
+      internalID: 7041266530232902820
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GMTK Game Jam 2026 Full Logo_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 708
+        width: 627
+        height: 699
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: abc084e3da17340a0800000000000000
+      internalID: -6898545215313277766
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GMTK Game Jam 2026 Full Logo_5
+      rect:
+        serializedVersion: 2
+        x: 579
+        y: 183
+        width: 723
+        height: 727
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 963fcf38d22327fe0800000000000000
+      internalID: -1192835780230450327
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GMTK Game Jam 2026 Full Logo_6
+      rect:
+        serializedVersion: 2
+        x: 605
+        y: 718
+        width: 676
+        height: 680
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64418d9d9bf330340800000000000000
+      internalID: 4828773292927620166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GMTK Game Jam 2026 Full Logo_7
+      rect:
+        serializedVersion: 2
+        x: 1286
+        y: 718
+        width: 707
+        height: 680
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd8d39a45dd4615f0800000000000000
+      internalID: -786355506454996769
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GMTK Game Jam 2026 Full Logo_8
+      rect:
+        serializedVersion: 2
+        x: 2025
+        y: 718
+        width: 445
+        height: 680
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e34534f76cc95f720800000000000000
+      internalID: 2879379913125876798
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GMTK Game Jam 2026 Full Logo_9
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 0
+        width: 541
+        height: 681
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d423e058e20015cf0800000000000000
+      internalID: -265430703237352883
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GMTK Game Jam 2026 Full Logo_10
+      rect:
+        serializedVersion: 2
+        x: 1286
+        y: 8
+        width: 707
+        height: 680
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d1f12db96da1f660800000000000000
+      internalID: 7417900730912207315
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GMTK Game Jam 2026 Full Logo_11
+      rect:
+        serializedVersion: 2
+        x: 2025
+        y: 8
+        width: 437
+        height: 679
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f2c8cdce225877c0800000000000000
+      internalID: -4073415501982153994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      GMTK Game Jam 2026 Full Logo_0: -4126897211208409240
+      GMTK Game Jam 2026 Full Logo_1: -7256838664147608332
+      GMTK Game Jam 2026 Full Logo_10: 7417900730912207315
+      GMTK Game Jam 2026 Full Logo_11: -4073415501982153994
+      GMTK Game Jam 2026 Full Logo_2: 578869160817033583
+      GMTK Game Jam 2026 Full Logo_3: 7041266530232902820
+      GMTK Game Jam 2026 Full Logo_4: -6898545215313277766
+      GMTK Game Jam 2026 Full Logo_5: -1192835780230450327
+      GMTK Game Jam 2026 Full Logo_6: 4828773292927620166
+      GMTK Game Jam 2026 Full Logo_7: -786355506454996769
+      GMTK Game Jam 2026 Full Logo_8: 2879379913125876798
+      GMTK Game Jam 2026 Full Logo_9: -265430703237352883
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
