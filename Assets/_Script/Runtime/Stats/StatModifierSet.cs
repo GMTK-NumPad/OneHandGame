@@ -9,7 +9,9 @@ public struct StatModifierSet
     public int maxHealth;
     public int attackPower;
     public int moveRange;
-    public int attackRange;
+    public int rampageDistance;
+    public int regenPerRound;
+    public int guardPerRound;
 
     /// <summary>
     /// 각 능력치에 적용할 보정값을 지정해 묶음을 생성합니다.
@@ -18,11 +20,15 @@ public struct StatModifierSet
         int maxHealth,
         int attackPower,
         int moveRange,
-        int attackRange)
+        int rampageDistance,
+        int regenPerRound,
+        int guardPerRound)
     {
         this.maxHealth = maxHealth;
         this.attackPower = attackPower;
         this.moveRange = moveRange;
-        this.attackRange = attackRange;
+        this.rampageDistance = rampageDistance;
+        this.regenPerRound = regenPerRound;
+        this.guardPerRound = guardPerRound;
     }
 }

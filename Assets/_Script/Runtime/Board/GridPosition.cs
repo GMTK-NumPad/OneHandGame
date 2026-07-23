@@ -16,6 +16,28 @@ public readonly struct GridPosition : IEquatable<GridPosition>
     public int Y { get; }
 
     /// <summary>
+    /// 지정한 방향으로 거리만큼 이동한 새로운 보드 좌표를 반환합니다.
+    /// </summary>
+    public GridPosition Offset(GridPosition direction, int distance = 1)
+    {
+        return new GridPosition(
+            X + direction.X * distance,
+            Y + direction.Y * distance);
+    }
+
+    /// <summary>
+    /// 대각선 이동을 한 칸으로 계산하여 다른 좌표까지의 거리를 반환합니다.
+    /// </summary>
+    /// <param name="other">거리를 계산할 대상 좌표입니다.</param>
+    /// <returns>가로와 세로 거리 중 더 큰 값입니다.</returns>
+    public int ChebyshevDistanceTo(GridPosition other)
+    {
+        return Math.Max(
+            Math.Abs(X - other.X),
+            Math.Abs(Y - other.Y));
+    }
+
+    /// <summary>
     /// 두 보드 좌표 사이의 상하좌우 타일 거리를 계산합니다.
     /// </summary>
     public int ManhattanDistanceTo(GridPosition other)

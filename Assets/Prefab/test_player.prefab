@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3749081897098258378}
   - component: {fileID: 7333868551082493185}
   - component: {fileID: 2229621514652214514}
+  - component: {fileID: 2482777918355703590}
   m_Layer: 0
   m_Name: test_player
   m_TagString: Untagged
@@ -104,3 +105,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bbac5a0f8a1f4df396815098aea53365, type: 3}
   m_Name: 
   m_EditorClassIdentifier: OneHandGame.Runtime::BoardActor
+--- !u!114 &2482777918355703590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8472639127547529185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97883d48dea942cf90c2333d6984e286, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: OneHandGame.Runtime::PlayerStatsController
+  definition: {fileID: 11400000, guid: d8d1cfde330d1774e9c454ddbe61cf8e, type: 2}

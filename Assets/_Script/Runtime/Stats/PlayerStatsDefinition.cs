@@ -15,13 +15,11 @@ public sealed class PlayerStatsDefinition : ScriptableObject
     [SerializeField, Min(1)] private int maxHealth = 5;
     [SerializeField, Min(0)] private int attackPower = 1;
     [SerializeField, Min(1)] private int moveRange = 1;
-    [SerializeField, Min(1)] private int attackRange = 1;
 
     public string DisplayName => displayName;
     public int MaxHealth => Mathf.Max(1, maxHealth);
     public int AttackPower => Mathf.Max(0, attackPower);
     public int MoveRange => Mathf.Max(1, moveRange);
-    public int AttackRange => Mathf.Max(1, attackRange);
 
     /// <summary>
     /// 이 SO의 기본값을 복사해 새로운 플레이어 런타임 능력치를 생성합니다.

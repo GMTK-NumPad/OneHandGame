@@ -35,12 +35,107 @@ public sealed class PlayerRuntimeStatsTests
         PlayerRuntimeStats stats = definition.CreateRuntimeStats();
         int originalAttackPower = definition.AttackPower;
 
-        stats.SetEquipmentModifiers(new StatModifierSet(2, 3, 0, 1));
+        stats.SetEquipmentModifiers(
+            new StatModifierSet(
+                maxHealth: 2,
+                attackPower: 3,
+                moveRange: 0,
+                rampageDistance: 1,
+                regenPerRound: 2,
+                guardPerRound: 2));
 
         Assert.That(stats.MaxHealth, Is.EqualTo(definition.MaxHealth + 2));
         Assert.That(stats.AttackPower, Is.EqualTo(originalAttackPower + 3));
-        Assert.That(stats.AttackRange, Is.EqualTo(definition.AttackRange + 1));
+        Assert.That(
+            stats.RampageDistance,
+            Is.EqualTo(1));
+        Assert.That(
+            stats.RegenPerRound,
+            Is.EqualTo(2));
+        Assert.That(stats.GuardPerRound, Is.EqualTo(2));
         Assert.That(definition.AttackPower, Is.EqualTo(originalAttackPower));
+    }
+
+    /// <summary>
+    /// 라운드 공격력 보너스가 추가되고 라운드 종료 시 초기화되는지 검사합니다.
+    /// </summary>
+    [Test]
+    public void RoundAttackPower_IsClearedAtRoundEnd()
+    {
+        PlayerRuntimeStats stats = definition.CreateRuntimeStats();
+        int baseAttackPower = stats.AttackPower;
+
+        stats.AddRoundAttackPower(4);
+        Assert.That(stats.AttackPower, Is.EqualTo(baseAttackPower + 4));
+
+        stats.ClearRoundAttackPower();
+        Assert.That(stats.AttackPower, Is.EqualTo(baseAttackPower));
+    }
+
+    /// <summary>
+    /// 무적과 Guard의 잔여 횟수가 추가 및 소비되는지 검사합니다.
+    /// </summary>
+    [Test]
+    public void DefensiveResources_AreAdvancedAndConsumed()
+    {
+        PlayerRuntimeStats stats = definition.CreateRuntimeStats();
+
+        stats.AddInvincibleTurns(2);
+        stats.AdvanceInvincibleTurn();
+        Assert.That(
+            stats.InvincibleTurnsRemaining,
+            Is.EqualTo(1));
+
+        stats.AddGuard(1);
+        Assert.That(stats.TryConsumeGuard(), Is.True);
+        Assert.That(stats.GuardCount, Is.Zero);
+    }
+
+    /// <summary>
+    /// 무적은 Guard를 소비하지 않고 공격 피해를 막는지 검사합니다.
+    /// </summary>
+    [Test]
+    public void Invincible_BlocksAttackBeforeGuard()
+    {
+        PlayerRuntimeStats stats = definition.CreateRuntimeStats();
+        stats.AddInvincibleTurns(1);
+        stats.AddGuard(1);
+
+        Assert.That(stats.TakeAttackDamage(1), Is.Zero);
+        Assert.That(stats.GuardCount, Is.EqualTo(1));
+        Assert.That(stats.CurrentHealth, Is.EqualTo(stats.MaxHealth));
+    }
+
+    /// <summary>
+    /// 피해형 환경 타일도 무적과 Guard 순서로 방어되는지 검사합니다.
+    /// </summary>
+    [Test]
+    public void EnvironmentDamage_ConsumesGuardWhenNotInvincible()
+    {
+        PlayerRuntimeStats stats = definition.CreateRuntimeStats();
+        stats.AddGuard(1);
+
+        Assert.That(stats.TakeEnvironmentDamage(1), Is.Zero);
+        Assert.That(stats.GuardCount, Is.Zero);
+        Assert.That(stats.CurrentHealth, Is.EqualTo(stats.MaxHealth));
+    }
+
+    /// <summary>
+    /// 라운드 시작 시 장비의 Guard 충전량으로 현재 횟수가 초기화되는지 검사합니다.
+    /// </summary>
+    [Test]
+    public void RoundStart_ResetsGuardFromEquipment()
+    {
+        PlayerRuntimeStats stats = definition.CreateRuntimeStats();
+        stats.SetEquipmentModifiers(
+            new StatModifierSet(0, 0, 0, 0, 0, guardPerRound: 2));
+
+        stats.ResetGuardForRound();
+        Assert.That(stats.GuardCount, Is.EqualTo(2));
+
+        stats.TryConsumeGuard();
+        stats.ResetGuardForRound();
+        Assert.That(stats.GuardCount, Is.EqualTo(2));
     }
 
     /// <summary>
@@ -51,7 +146,7 @@ public sealed class PlayerRuntimeStatsTests
     {
         PlayerRuntimeStats stats = definition.CreateRuntimeStats();
 
-        stats.TakeDamage(stats.MaxHealth + 10);
+        stats.TakeUnavoidableDamage(stats.MaxHealth + 10);
         Assert.That(stats.CurrentHealth, Is.Zero);
         Assert.That(stats.IsDefeated, Is.True);
 
