@@ -112,6 +112,26 @@ public sealed class PlayerRuntimeStatsTests
     }
 
     /// <summary>
+    /// 플레이어 속박은 더 긴 지속시간을 유지하고 제한된 행동을 할 때마다 1턴씩 소비되는지 검사합니다.
+    /// </summary>
+    [Test]
+    public void Bind_IsConsumedByBoundPlayerActions()
+    {
+        PlayerRuntimeStats stats = definition.CreateRuntimeStats();
+
+        stats.AddBindTurns(2);
+        stats.AddBindTurns(1);
+
+        Assert.That(stats.IsBound, Is.True);
+        Assert.That(stats.BindTurnsRemaining, Is.EqualTo(2));
+        Assert.That(stats.TryConsumeBoundTurn(), Is.True);
+        Assert.That(stats.BindTurnsRemaining, Is.EqualTo(1));
+        Assert.That(stats.TryConsumeBoundTurn(), Is.True);
+        Assert.That(stats.IsBound, Is.False);
+        Assert.That(stats.TryConsumeBoundTurn(), Is.False);
+    }
+
+    /// <summary>
     /// 무적은 Guard를 소비하지 않고 공격 피해를 막는지 검사합니다.
     /// </summary>
     [Test]

@@ -186,6 +186,39 @@ public sealed class EnemyCastingFlowTests
     }
 
     /// <summary>
+    /// 몬스터 속박은 기절시키지 않고 이동 제한 상태만 유지하며 지속시간을 감소시키는지 검사합니다.
+    /// </summary>
+    [Test]
+    public void Bind_DoesNotPreventEnemyAttackOrCasting()
+    {
+        EnemyDefinition definition =
+            ScriptableObject.CreateInstance<EnemyDefinition>();
+
+        try
+        {
+            EnemyRuntimeState state =
+                definition.CreateRuntimeState(
+                    instanceId: 1,
+                    goldReward: new GoldRewardResult(
+                        amount: 0,
+                        isJackpot: false));
+
+            state.ApplyBind(2);
+
+            Assert.That(state.IsBound, Is.True);
+            Assert.That(state.IsStunned, Is.False);
+            Assert.That(state.CanAttackOrCast, Is.True);
+
+            state.AdvanceBind();
+            Assert.That(state.BindRemaining, Is.EqualTo(1));
+        }
+        finally
+        {
+            Object.DestroyImmediate(definition);
+        }
+    }
+
+    /// <summary>
     /// 테스트에 필요한 캐스터 SO를 생성하고 비공개 직렬화 필드를 설정합니다.
     /// </summary>
     private static EnemyDefinition CreateCasterDefinition(

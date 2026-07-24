@@ -11,6 +11,8 @@ public sealed class EnemyTurnController : MonoBehaviour
     [SerializeField] private CombatSceneBootstrap combatBootstrap = null;
     [SerializeField] private EnemySpawner enemySpawner = null;
     [SerializeField] private PlayerSpawner playerSpawner = null;
+    [SerializeField]
+    private EnvironmentTileEffectController environmentTileEffects = null;
     [SerializeField, Min(0f)] private float delayBetweenEnemies = 0.02f;
 
     private RoundFlowStateMachine subscribedRoundFlow;
@@ -31,6 +33,8 @@ public sealed class EnemyTurnController : MonoBehaviour
             GetComponent<CombatSceneBootstrap>();
         enemySpawner = GetComponent<EnemySpawner>();
         playerSpawner = GetComponent<PlayerSpawner>();
+        environmentTileEffects =
+            GetComponent<EnvironmentTileEffectController>();
     }
 
     /// <summary>
@@ -71,6 +75,12 @@ public sealed class EnemyTurnController : MonoBehaviour
     /// </summary>
     private void Start()
     {
+        if (environmentTileEffects == null)
+        {
+            environmentTileEffects =
+                GetComponent<EnvironmentTileEffectController>();
+        }
+
         if (combatBootstrap != null
             && combatBootstrap.IsInitialized)
         {
@@ -176,6 +186,18 @@ public sealed class EnemyTurnController : MonoBehaviour
                 yield break;
             }
 
+            if (environmentTileEffects != null)
+            {
+                environmentTileEffects
+                    .ApplyEnemyTileEffects();
+            }
+
+            if (subscribedRoundFlow.Phase
+                != RoundPhase.EnemyTurn)
+            {
+                yield break;
+            }
+
             AdvanceTimedStates(playerStats);
             subscribedRoundFlow.CompleteEnemyTurn();
         }
@@ -271,6 +293,11 @@ public sealed class EnemyTurnController : MonoBehaviour
         }
 
         if (state.Definition.HasCustomMovementPattern)
+        {
+            yield break;
+        }
+
+        if (state.IsBound)
         {
             yield break;
         }
@@ -560,6 +587,7 @@ public sealed class EnemyTurnController : MonoBehaviour
 
             enemy.RuntimeState.AdvanceCooldown();
             enemy.RuntimeState.AdvanceStun();
+            enemy.RuntimeState.AdvanceBind();
         }
 
         playerStats.AdvanceInvincibleTurn();

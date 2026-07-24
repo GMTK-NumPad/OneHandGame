@@ -9,6 +9,10 @@ public sealed class CombatSceneBootstrap : MonoBehaviour
     [SerializeField] private BoardManager boardManager = null;
     [SerializeField] private PlayerSpawner playerSpawner = null;
     [SerializeField] private EnemySpawner enemySpawner = null;
+    [SerializeField]
+    private EnvironmentTileSpawner environmentTileSpawner = null;
+    [SerializeField]
+    private EnvironmentTileEffectController environmentTileEffects = null;
     [SerializeField] private RoundRulesDefinition roundRules = null;
     [SerializeField] private bool initializeOnStart = true;
 
@@ -24,6 +28,10 @@ public sealed class CombatSceneBootstrap : MonoBehaviour
         boardManager = GetComponent<BoardManager>();
         playerSpawner = GetComponent<PlayerSpawner>();
         enemySpawner = GetComponent<EnemySpawner>();
+        environmentTileSpawner =
+            GetComponent<EnvironmentTileSpawner>();
+        environmentTileEffects =
+            GetComponent<EnvironmentTileEffectController>();
     }
 
     /// <summary>
@@ -50,6 +58,18 @@ public sealed class CombatSceneBootstrap : MonoBehaviour
             return false;
         }
 
+        if (environmentTileSpawner == null)
+        {
+            environmentTileSpawner =
+                GetComponent<EnvironmentTileSpawner>();
+        }
+
+        if (environmentTileEffects == null)
+        {
+            environmentTileEffects =
+                GetComponent<EnvironmentTileEffectController>();
+        }
+
         if (!ValidateDependencies())
         {
             return false;
@@ -72,6 +92,12 @@ public sealed class CombatSceneBootstrap : MonoBehaviour
             return false;
         }
 
+        if (!environmentTileSpawner
+                .GenerateEnvironmentTiles())
+        {
+            return false;
+        }
+
         RoundFlow = roundRules.CreateStateMachine();
         RoundFlow.StartFirstRound(
             enemySpawner.SpawnedEnemies.Count);
@@ -88,10 +114,21 @@ public sealed class CombatSceneBootstrap : MonoBehaviour
         if (boardManager == null
             || playerSpawner == null
             || enemySpawner == null
+            || environmentTileSpawner == null
+            || environmentTileEffects == null
             || roundRules == null)
         {
             Debug.LogError(
-                "CombatSceneBootstrap requires BoardManager, PlayerSpawner, EnemySpawner, and RoundRulesDefinition.",
+                "CombatSceneBootstrap requires board, player, enemy, environment spawn/effect components, and RoundRulesDefinition.",
+                this);
+            return false;
+        }
+
+        if (environmentTileSpawner.SpawnRules
+            != environmentTileEffects.SpawnRules)
+        {
+            Debug.LogError(
+                "EnvironmentTileSpawner and EnvironmentTileEffectController must use the same Environment Tile Spawn Rules.",
                 this);
             return false;
         }

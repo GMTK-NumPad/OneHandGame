@@ -24,15 +24,18 @@ public sealed class PlayerRuntimeStats
         InvincibleTurnsRemaining = 0;
         GuardCount = 0;
         StunTurnsRemaining = 0;
+        BindTurnsRemaining = 0;
     }
 
     public int CurrentHealth { get; private set; }
     public int InvincibleTurnsRemaining { get; private set; }
     public int GuardCount { get; private set; }
     public int StunTurnsRemaining { get; private set; }
+    public int BindTurnsRemaining { get; private set; }
     public int RoundAttackPowerBonus => roundAttackPowerBonus;
     public bool IsDefeated => CurrentHealth <= 0;
     public bool IsStunned => StunTurnsRemaining > 0;
+    public bool IsBound => BindTurnsRemaining > 0;
 
     public int MaxHealth => Mathf.Max(
         1,
@@ -143,6 +146,30 @@ public sealed class PlayerRuntimeStats
         }
 
         StunTurnsRemaining--;
+        return true;
+    }
+
+    /// <summary>
+    /// 플레이어에게 적용할 속박 잔여 턴을 현재 값과 새 값 중 큰 값으로 갱신합니다.
+    /// </summary>
+    public void AddBindTurns(int turns)
+    {
+        BindTurnsRemaining = Mathf.Max(
+            BindTurnsRemaining,
+            Mathf.Max(0, turns));
+    }
+
+    /// <summary>
+    /// 속박이 남아 있다면 이동이 제한된 플레이어 행동 한 번을 소비하며 잔여 턴을 감소시킵니다.
+    /// </summary>
+    public bool TryConsumeBoundTurn()
+    {
+        if (BindTurnsRemaining <= 0)
+        {
+            return false;
+        }
+
+        BindTurnsRemaining--;
         return true;
     }
 

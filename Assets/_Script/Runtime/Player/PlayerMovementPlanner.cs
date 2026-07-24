@@ -53,6 +53,41 @@ public static class PlayerMovementPlanner
     }
 
     /// <summary>
+    /// 속박 중에는 인접한 입력 방향의 액터만 공격하고 빈 방향 입력은 이동 없이 행동으로 소비합니다.
+    /// </summary>
+    public static PlayerMovementPlan CreateBoundPlan(
+        IBoardQuery board,
+        int playerActorId,
+        GridPosition start,
+        GridPosition direction)
+    {
+        if (board == null)
+        {
+            throw new ArgumentNullException(nameof(board));
+        }
+
+        ValidateDirection(direction);
+        GridPosition targetPosition =
+            start.Offset(direction);
+        int targetActorId = default;
+        bool shouldAttack =
+            board.IsInside(targetPosition)
+            && board.TryGetOccupant(
+                targetPosition,
+                out targetActorId)
+            && targetActorId != playerActorId;
+
+        return new PlayerMovementPlan(
+            start,
+            start,
+            shouldAttack,
+            shouldAttack ? targetActorId : default,
+            shouldAttack ? targetPosition : default,
+            rampageRemaining: 0,
+            consumesAction: true);
+    }
+
+    /// <summary>
     /// 장애물 없이 같은 직선에 있는 첫 번째 액터와 거리를 찾습니다.
     /// </summary>
     private static bool TryFindFirstTarget(

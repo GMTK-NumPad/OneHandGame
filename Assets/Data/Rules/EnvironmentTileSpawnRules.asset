@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3e34452c81942a199505384460ee9fb, type: 3}
+  m_Name: EnvironmentTileSpawnRules
+  m_EditorClassIdentifier: OneHandGame.Runtime::EnvironmentTileSpawnRulesDefinition
+  minimumSpawnCount: 3
+  maximumSpawnCount: 3
+  entries:
+  - definition: {fileID: 11400000, guid: 700f9b5353e7ad04abb7d139c3afd22d, type: 2}
+    weight: 1
+  - definition: {fileID: 11400000, guid: c0ea6286a369ca447b4358e544809847, type: 2}
+    weight: 1
+  - definition: {fileID: 11400000, guid: 0ee49fb95d2530f41a33ec5f9144c8ed, type: 2}
+    weight: 1

@@ -34,11 +34,13 @@ public sealed class EnemyRuntimeState
     public int CurrentCastingProgress { get; private set; }
     public int CooldownRemaining { get; private set; }
     public int StunRemaining { get; private set; }
+    public int BindRemaining { get; private set; }
     public bool HasCastingTarget { get; private set; }
     public GridPosition CastingTarget { get; private set; }
     public GridPosition FacingDirection { get; private set; }
     public bool IsDefeated => CurrentHealth <= 0;
     public bool IsStunned => StunRemaining > 0;
+    public bool IsBound => BindRemaining > 0;
     public bool IsCasting => HasCastingTarget;
     public bool CanAttackOrCast =>
         !IsDefeated
@@ -190,6 +192,16 @@ public sealed class EnemyRuntimeState
     }
 
     /// <summary>
+    /// 이동만 제한하고 공격과 캐스팅은 허용하는 속박 잔여 턴을 현재 값과 새 값 중 큰 값으로 갱신합니다.
+    /// </summary>
+    public void ApplyBind(int turns)
+    {
+        BindRemaining = Math.Max(
+            BindRemaining,
+            Math.Max(0, turns));
+    }
+
+    /// <summary>
     /// 카운트 처리 직전에 행동 쿨다운을 1 감소시킵니다.
     /// </summary>
     public void AdvanceCooldown()
@@ -203,6 +215,16 @@ public sealed class EnemyRuntimeState
     public void AdvanceStun()
     {
         StunRemaining = Math.Max(0, StunRemaining - 1);
+    }
+
+    /// <summary>
+    /// 몬스터 턴 이후 카운트 감소 전에 속박 잔여 턴을 1 감소시킵니다.
+    /// </summary>
+    public void AdvanceBind()
+    {
+        BindRemaining = Math.Max(
+            0,
+            BindRemaining - 1);
     }
 
     /// <summary>

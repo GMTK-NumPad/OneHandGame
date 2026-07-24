@@ -10,6 +10,8 @@ public sealed class PlayerTurnController : MonoBehaviour
     [SerializeField] private NumpadInputController inputController = null;
     [SerializeField] private CombatSceneBootstrap combatBootstrap = null;
     [SerializeField] private PlayerSpawner playerSpawner = null;
+    [SerializeField]
+    private EnvironmentTileEffectController environmentTileEffects = null;
 
     private BoardActor playerActor;
     private PlayerStatsController playerStatsController;
@@ -31,6 +33,8 @@ public sealed class PlayerTurnController : MonoBehaviour
         boardManager = GetComponent<BoardManager>();
         combatBootstrap = GetComponent<CombatSceneBootstrap>();
         playerSpawner = GetComponent<PlayerSpawner>();
+        environmentTileEffects =
+            GetComponent<EnvironmentTileEffectController>();
         inputController =
             FindFirstObjectByType<NumpadInputController>();
     }
@@ -84,6 +88,12 @@ public sealed class PlayerTurnController : MonoBehaviour
     /// </summary>
     private void Start()
     {
+        if (environmentTileEffects == null)
+        {
+            environmentTileEffects =
+                GetComponent<EnvironmentTileEffectController>();
+        }
+
         if (combatBootstrap != null
             && combatBootstrap.IsInitialized)
         {
@@ -106,14 +116,21 @@ public sealed class PlayerTurnController : MonoBehaviour
 
         PlayerRuntimeStats stats =
             playerStatsController.RuntimeStats;
+        bool wasBound = stats.IsBound;
         PlayerMovementPlan plan =
-            PlayerMovementPlanner.CreatePlan(
-                boardManager,
-                playerActor.GetInstanceID(),
-                playerActor.Position,
-                direction,
-                stats.MoveRange,
-                stats.RampageDistance);
+            wasBound
+                ? PlayerMovementPlanner.CreateBoundPlan(
+                    boardManager,
+                    playerActor.GetInstanceID(),
+                    playerActor.Position,
+                    direction)
+                : PlayerMovementPlanner.CreatePlan(
+                    boardManager,
+                    playerActor.GetInstanceID(),
+                    playerActor.Position,
+                    direction,
+                    stats.MoveRange,
+                    stats.RampageDistance);
 
         if (!plan.CanAct)
         {
@@ -140,6 +157,20 @@ public sealed class PlayerTurnController : MonoBehaviour
 
             RoundFlowStateMachine roundFlow =
                 combatBootstrap.RoundFlow;
+
+            if (wasBound)
+            {
+                stats.TryConsumeBoundTurn();
+            }
+
+            if (roundFlow.Phase == RoundPhase.PlayerTurn)
+            {
+                if (environmentTileEffects != null)
+                {
+                    environmentTileEffects
+                        .ApplyPlayerTileEffects();
+                }
+            }
 
             if (roundFlow.Phase == RoundPhase.PlayerTurn)
             {
@@ -281,6 +312,7 @@ public sealed class PlayerTurnController : MonoBehaviour
                 yield break;
             }
 
+            stats.TryConsumeBoundTurn();
             subscribedRoundFlow.CompletePlayerTurn();
         }
         finally

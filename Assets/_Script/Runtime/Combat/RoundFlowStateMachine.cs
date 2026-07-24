@@ -160,6 +160,40 @@ public sealed class RoundFlowStateMachine
     }
 
     /// <summary>
+    /// 환경 효과 등으로 남은 카운트를 즉시 감소시키고 0이 되면 게임을 패배로 종료합니다.
+    /// </summary>
+    public bool ReduceRemainingCount(int amount)
+    {
+        if (amount <= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(amount),
+                "Count reduction amount must be greater than zero.");
+        }
+
+        if (Phase != RoundPhase.PlayerTurn
+            && Phase != RoundPhase.EnemyTurn)
+        {
+            return false;
+        }
+
+        RemainingCount = Math.Max(
+            0,
+            RemainingCount - amount);
+
+        if (RemainingCount <= 0)
+        {
+            EndRun(RoundResolution.CountExpired);
+        }
+        else
+        {
+            PublishState();
+        }
+
+        return true;
+    }
+
+    /// <summary>
     /// 처치된 몬스터 수를 반영하고 남은 몬스터가 없으면 라운드를 완료합니다.
     /// </summary>
     public bool ReportEnemyDefeated(int amount = 1)

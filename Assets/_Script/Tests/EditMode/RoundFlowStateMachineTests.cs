@@ -58,6 +58,27 @@ public sealed class RoundFlowStateMachineTests
     }
 
     /// <summary>
+    /// 환경 효과의 즉시 카운트 감소가 상태를 알리고 0에서 카운트 만료 패배로 이어지는지 검사합니다.
+    /// </summary>
+    [Test]
+    public void EnvironmentCountReduction_UpdatesAndCanEndRun()
+    {
+        var flow = new RoundFlowStateMachine(3);
+        flow.StartFirstRound(1);
+
+        Assert.That(flow.ReduceRemainingCount(2), Is.True);
+        Assert.That(flow.RemainingCount, Is.EqualTo(1));
+        Assert.That(flow.Phase, Is.EqualTo(RoundPhase.PlayerTurn));
+
+        Assert.That(flow.ReduceRemainingCount(1), Is.True);
+        Assert.That(flow.RemainingCount, Is.Zero);
+        Assert.That(flow.Phase, Is.EqualTo(RoundPhase.RunEnded));
+        Assert.That(
+            flow.Resolution,
+            Is.EqualTo(RoundResolution.CountExpired));
+    }
+
+    /// <summary>
     /// 플레이어 패배 보고가 즉시 게임 종료 상태로 이어지는지 검사합니다.
     /// </summary>
     [Test]
