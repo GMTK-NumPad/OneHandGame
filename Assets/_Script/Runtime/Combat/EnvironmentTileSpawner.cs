@@ -27,14 +27,9 @@ public sealed class EnvironmentTileSpawner : MonoBehaviour
 
     [SerializeField] private BoardManager boardManager = null;
     [SerializeField] private Tilemap environmentTilemap = null;
-    [SerializeField]
     private EnvironmentTileSpawnRulesDefinition spawnRules = null;
 
     private readonly List<SpawnedEnvironmentTile> spawnedTiles = new();
-
-    public int SpawnedTileCount => spawnedTiles.Count;
-    public EnvironmentTileSpawnRulesDefinition SpawnRules =>
-        spawnRules;
 
     /// <summary>
     /// 컴포넌트를 추가할 때 같은 GameObject의 BoardManager를 자동으로 연결합니다.
@@ -42,6 +37,15 @@ public sealed class EnvironmentTileSpawner : MonoBehaviour
     private void Reset()
     {
         boardManager = GetComponent<BoardManager>();
+    }
+
+    /// <summary>
+    /// 새 라운드가 사용할 환경 타일 생성 규칙 SO로 교체합니다.
+    /// </summary>
+    public void SetSpawnRules(
+        EnvironmentTileSpawnRulesDefinition rules)
+    {
+        spawnRules = rules;
     }
 
     /// <summary>
@@ -74,7 +78,7 @@ public sealed class EnvironmentTileSpawner : MonoBehaviour
     /// <summary>
     /// 현재 환경 Tilemap과 생성된 타일 배치 기록을 모두 비웁니다.
     /// </summary>
-    public void ClearEnvironmentTiles()
+    private void ClearEnvironmentTiles()
     {
         spawnedTiles.Clear();
 

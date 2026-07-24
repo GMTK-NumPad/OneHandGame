@@ -21,7 +21,7 @@ public readonly struct PlayerMovementPlan
         AttackTargetActorId = attackTargetActorId;
         AttackTargetPosition = attackTargetPosition;
         RampageRemaining = rampageRemaining;
-        ConsumesAction =
+        CanAct =
             consumesAction
             || Start != Destination
             || shouldAttack;
@@ -31,8 +31,7 @@ public readonly struct PlayerMovementPlan
     public GridPosition Destination { get; }
     public bool ShouldMove => Start != Destination;
     public bool ShouldAttack { get; }
-    public bool CanAct => ConsumesAction;
-    public bool ConsumesAction { get; }
+    public bool CanAct { get; }
     public int AttackTargetActorId { get; }
     public GridPosition AttackTargetPosition { get; }
     public int RampageRemaining { get; }

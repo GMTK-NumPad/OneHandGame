@@ -10,7 +10,6 @@ public sealed class EnemySpawner : MonoBehaviour
     [SerializeField] private BoardManager boardManager = null;
     [SerializeField] private GoldRewardRulesDefinition goldRewardRules = null;
     [SerializeField] private Transform actorRoot = null;
-    [SerializeField] private List<FixedEnemySpawnEntry> fixedSpawns = new();
 
     private readonly List<EnemyActor> spawnedEnemies = new();
     private BoardActor playerActor;
@@ -19,7 +18,6 @@ public sealed class EnemySpawner : MonoBehaviour
     public event Action<EnemyActor> EnemyDefeated;
     public event Action EnemiesCleared;
     public IReadOnlyList<EnemyActor> SpawnedEnemies => spawnedEnemies;
-    public BoardActor PlayerActor => playerActor;
 
     /// <summary>
     /// 컴포넌트를 처음 추가했을 때 같은 GameObject의 BoardManager를 자동으로 연결합니다.
@@ -51,9 +49,10 @@ public sealed class EnemySpawner : MonoBehaviour
     }
 
     /// <summary>
-    /// Inspector에 등록한 모든 고정 스폰을 검증한 뒤 순서대로 생성합니다.
+    /// 라운드 SO가 제공한 모든 고정 스폰을 검증한 뒤 순서대로 생성합니다.
     /// </summary>
-    public bool TrySpawnFixedEnemies()
+    public bool TrySpawnFixedEnemies(
+        IReadOnlyList<FixedEnemySpawnEntry> spawnEntries)
     {
         if (spawnedEnemies.Count > 0)
         {
@@ -63,12 +62,13 @@ public sealed class EnemySpawner : MonoBehaviour
             return false;
         }
 
-        if (!ValidateDependencies() || !ValidateFixedSpawns())
+        if (!ValidateDependencies()
+            || !ValidateFixedSpawns(spawnEntries))
         {
             return false;
         }
 
-        foreach (FixedEnemySpawnEntry entry in fixedSpawns)
+        foreach (FixedEnemySpawnEntry entry in spawnEntries)
         {
             if (TrySpawnEnemy(
                     entry.EnemyPrefab,
@@ -212,9 +212,11 @@ public sealed class EnemySpawner : MonoBehaviour
     /// <summary>
     /// 고정 스폰 목록의 누락된 참조, 중복 좌표와 배치 불가능한 좌표를 검사합니다.
     /// </summary>
-    private bool ValidateFixedSpawns()
+    private bool ValidateFixedSpawns(
+        IReadOnlyList<FixedEnemySpawnEntry> spawnEntries)
     {
-        if (fixedSpawns == null || fixedSpawns.Count == 0)
+        if (spawnEntries == null
+            || spawnEntries.Count == 0)
         {
             Debug.LogError(
                 "EnemySpawner requires at least one fixed spawn entry.",
@@ -224,9 +226,12 @@ public sealed class EnemySpawner : MonoBehaviour
 
         var reservedPositions = new HashSet<GridPosition>();
 
-        for (int index = 0; index < fixedSpawns.Count; index++)
+        for (int index = 0;
+             index < spawnEntries.Count;
+             index++)
         {
-            FixedEnemySpawnEntry entry = fixedSpawns[index];
+            FixedEnemySpawnEntry entry =
+                spawnEntries[index];
 
             if (entry == null
                 || entry.EnemyPrefab == null

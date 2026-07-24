@@ -18,6 +18,36 @@ public sealed class PlayerRuntimeStatsTests
     }
 
     /// <summary>
+    /// 무적이나 Guard로 막히지 않고 실제로 감소한 체력만 피해 이벤트로 전달되는지 검사합니다.
+    /// </summary>
+    [Test]
+    public void HealthDamaged_ReportsOnlyAppliedDamage()
+    {
+        PlayerStatsDefinition definition =
+            ScriptableObject.CreateInstance<PlayerStatsDefinition>();
+
+        try
+        {
+            PlayerRuntimeStats stats =
+                definition.CreateRuntimeStats();
+            int reportedDamage = 0;
+            stats.HealthDamaged +=
+                amount => reportedDamage += amount;
+
+            stats.AddInvincibleTurns(1);
+            stats.TakeAttackDamage(3);
+            stats.AdvanceInvincibleTurn();
+            stats.TakeAttackDamage(2);
+
+            Assert.That(reportedDamage, Is.EqualTo(2));
+        }
+        finally
+        {
+            Object.DestroyImmediate(definition);
+        }
+    }
+
+    /// <summary>
     /// 테스트가 끝난 뒤 생성한 임시 SO를 제거합니다.
     /// </summary>
     [TearDown]

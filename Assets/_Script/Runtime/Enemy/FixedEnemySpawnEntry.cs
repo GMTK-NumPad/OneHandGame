@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// 테스트 라운드와 초반 고정 라운드에 사용할 몬스터 종류와 보드 좌표를 보관합니다.
+/// 튜토리얼 고정 라운드에 사용할 몬스터 종류와 보드 좌표를 보관합니다.
 /// </summary>
 [Serializable]
 public sealed class FixedEnemySpawnEntry

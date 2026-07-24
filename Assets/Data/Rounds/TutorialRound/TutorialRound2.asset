@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3c4c340a58949e58295576f83571260, type: 3}
+  m_Name: TutorialRound2
+  m_EditorClassIdentifier: OneHandGame.Runtime::RoundDefinition
+  fixedEnemySpawns:
+  - enemyPrefab: {fileID: -741067517373313998, guid: 0303a73f7970d0c45a162febf972935d, type: 3}
+    definition: {fileID: 11400000, guid: 09d87bf8456878e438522c25943fbd80, type: 2}
+    boardPosition: {x: 0, y: 0}
+  - enemyPrefab: {fileID: -741067517373313998, guid: 0303a73f7970d0c45a162febf972935d, type: 3}
+    definition: {fileID: 11400000, guid: 09d87bf8456878e438522c25943fbd80, type: 2}
+    boardPosition: {x: 6, y: 6}
+  environmentTileSpawnRules: {fileID: 11400000, guid: c1abb47327e176b4fab74b9edca61710, type: 2}

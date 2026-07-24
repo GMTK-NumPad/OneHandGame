@@ -94,13 +94,15 @@ public sealed class RoundFlowStateMachineTests
     }
 
     /// <summary>
-    /// 다음 라운드에서 번호와 몬스터 수가 갱신되고 카운트가 초기화되는지 검사합니다.
+    /// 다음 라운드에서 번호와 몬스터 수가 갱신되며 정산된 카운트다운이 유지되는지 검사합니다.
     /// </summary>
     [Test]
-    public void NextRound_IncrementsRoundAndResetsCount()
+    public void NextRound_IncrementsRoundAndKeepsCountdown()
     {
         var flow = new RoundFlowStateMachine(10);
         flow.StartFirstRound(1);
+        flow.CompletePlayerTurn();
+        flow.CompleteEnemyTurn();
         flow.ReportEnemyDefeated();
 
         Assert.That(flow.StartNextRound(2), Is.True);
@@ -109,5 +111,153 @@ public sealed class RoundFlowStateMachineTests
         Assert.That(flow.RemainingCount, Is.EqualTo(10));
         Assert.That(flow.AliveEnemyCount, Is.EqualTo(2));
         Assert.That(flow.Phase, Is.EqualTo(RoundPhase.PlayerTurn));
+    }
+
+    /// <summary>
+    /// 라운드 클리어 시 기본, 무피해와 소모품 미사용 보너스를 더하고 초과 카운트를 골드로 바꾸는지 검사합니다.
+    /// </summary>
+    [Test]
+    public void ClearRound_AwardsCountdownAndConvertsOverflowToGold()
+    {
+        var flow = new RoundFlowStateMachine(
+            startingCount: 10,
+            maximumCount: 10,
+            clearCountdownReward: 3,
+            noDamageCountdownReward: 2,
+            noConsumableCountdownReward: 1,
+            overflowGoldPerCountdown: 25);
+        flow.StartFirstRound(1);
+        flow.CompletePlayerTurn();
+        flow.CompleteEnemyTurn();
+
+        flow.ReportEnemyDefeated();
+
+        Assert.That(
+            flow.LastClearReward.TotalCountdownReward,
+            Is.EqualTo(6));
+        Assert.That(
+            flow.LastClearReward.AddedCountdown,
+            Is.EqualTo(1));
+        Assert.That(
+            flow.LastClearReward.OverflowCountdown,
+            Is.EqualTo(5));
+        Assert.That(
+            flow.LastClearReward.OverflowGold,
+            Is.EqualTo(125));
+        Assert.That(flow.RemainingCount, Is.EqualTo(10));
+        Assert.That(
+            flow.TotalBonusCountdownEarned,
+            Is.EqualTo(6));
+    }
+
+    /// <summary>
+    /// 실제 피해와 소모품 사용 기록이 해당 보너스를 제외하고 다음 라운드에서 초기화되는지 검사합니다.
+    /// </summary>
+    [Test]
+    public void ClearRound_ExcludesFailedConditionBonuses()
+    {
+        var flow = new RoundFlowStateMachine(
+            startingCount: 10,
+            maximumCount: 10,
+            clearCountdownReward: 3,
+            noDamageCountdownReward: 2,
+            noConsumableCountdownReward: 1,
+            overflowGoldPerCountdown: 1);
+        flow.StartFirstRound(1);
+        flow.ReportPlayerDamageTaken(2);
+        flow.ReportConsumableUsed();
+
+        flow.ReportEnemyDefeated();
+
+        Assert.That(
+            flow.LastClearReward.TotalCountdownReward,
+            Is.EqualTo(3));
+        Assert.That(flow.TotalDamageTaken, Is.EqualTo(2));
+
+        flow.StartNextRound(1);
+
+        Assert.That(flow.DamageTakenThisRound, Is.Zero);
+        Assert.That(flow.ConsumableUsedThisRound, Is.False);
+    }
+
+    /// <summary>
+    /// 일반 라운드는 정산 카운트를 유지하지만 새 스테이지 첫 라운드는 시작값으로 설정되는지 검사합니다.
+    /// </summary>
+    [Test]
+    public void StageFirstRound_ResetsCountdownOnlyAtStageBoundary()
+    {
+        var flow = new RoundFlowStateMachine(
+            startingCount: 10,
+            maximumCount: 10,
+            clearCountdownReward: 0,
+            noDamageCountdownReward: 0,
+            noConsumableCountdownReward: 0,
+            overflowGoldPerCountdown: 0);
+        flow.StartFirstRound(1);
+        flow.CompletePlayerTurn();
+        flow.CompleteEnemyTurn();
+        flow.ReportEnemyDefeated();
+
+        flow.StartNextRound(
+            enemyCount: 1,
+            isFirstRoundOfStage: false);
+
+        Assert.That(flow.RemainingCount, Is.EqualTo(9));
+
+        flow.ReportEnemyDefeated();
+        flow.StartNextRound(
+            enemyCount: 1,
+            isFirstRoundOfStage: true);
+
+        Assert.That(flow.RemainingCount, Is.EqualTo(10));
+    }
+
+    /// <summary>
+    /// 마지막 적을 처치한 행동도 몬스터 턴 전환 여부와 관계없이 진행 턴에 포함되는지 검사합니다.
+    /// </summary>
+    [Test]
+    public void ClearAction_IsIncludedInTotalTurns()
+    {
+        var flow = new RoundFlowStateMachine(10);
+        flow.StartFirstRound(1);
+
+        Assert.That(flow.RecordPlayerAction(), Is.True);
+        flow.ReportEnemyDefeated();
+
+        Assert.That(flow.TotalTurnsPlayed, Is.EqualTo(1));
+    }
+
+    /// <summary>
+    /// 마지막 스테이지는 클리어 보상 정산 없이 즉시 게임 클리어로 종료되는지 검사합니다.
+    /// </summary>
+    [Test]
+    public void FinalRoundClear_EndsImmediatelyWithoutClearRewards()
+    {
+        var flow = new RoundFlowStateMachine(
+            startingCount: 10,
+            maximumCount: 10,
+            clearCountdownReward: 3,
+            noDamageCountdownReward: 2,
+            noConsumableCountdownReward: 1,
+            overflowGoldPerCountdown: 10);
+        bool roundClearedRaised = false;
+        flow.RoundCleared +=
+            _ => roundClearedRaised = true;
+        flow.StartFirstRound(
+            enemyCount: 1,
+            completesRunWhenCleared: true);
+
+        Assert.That(flow.ReportEnemyDefeated(), Is.True);
+        Assert.That(flow.Phase, Is.EqualTo(RoundPhase.RunEnded));
+        Assert.That(
+            flow.Resolution,
+            Is.EqualTo(RoundResolution.GameCleared));
+        Assert.That(
+            flow.TotalBonusCountdownEarned,
+            Is.Zero);
+        Assert.That(
+            flow.LastClearReward.OverflowGold,
+            Is.Zero);
+        Assert.That(roundClearedRaised, Is.False);
     }
 }

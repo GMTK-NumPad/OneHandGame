@@ -11,8 +11,9 @@ public sealed class GoldWalletController : MonoBehaviour
     private GoldWallet wallet;
 
     public event Action<int> GoldChanged;
-    public GoldWallet Wallet => EnsureWallet();
     public int TotalGold => EnsureWallet().TotalGold;
+    public int TotalGoldEarned =>
+        EnsureWallet().TotalGoldEarned;
 
     /// <summary>
     /// 컴포넌트를 처음 추가할 때 같은 GameObject의 EnemySpawner를 자동으로 연결합니다.
@@ -65,14 +66,23 @@ public sealed class GoldWalletController : MonoBehaviour
             return;
         }
 
+        AddGold(enemy.RuntimeState.GoldReward);
+    }
+
+    /// <summary>
+    /// 몬스터 보상 외의 정산 골드를 지갑에 더하고 변경된 총 골드를 알립니다.
+    /// </summary>
+    public int AddGold(int amount)
+    {
         int addedGold =
-            EnsureWallet().AddGold(
-                enemy.RuntimeState.GoldReward);
+            EnsureWallet().AddGold(amount);
 
         if (addedGold > 0)
         {
             GoldChanged?.Invoke(wallet.TotalGold);
         }
+
+        return addedGold;
     }
 
     /// <summary>

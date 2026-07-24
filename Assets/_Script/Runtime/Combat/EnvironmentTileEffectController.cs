@@ -16,14 +16,10 @@ public sealed class EnvironmentTileEffectController
 
     [Header("Environment")]
     [SerializeField] private Tilemap environmentTilemap = null;
-    [SerializeField]
     private EnvironmentTileSpawnRulesDefinition spawnRules = null;
 
     private readonly Dictionary<TileBase, EnvironmentTileEffectDefinition>
         definitionsByTile = new();
-
-    public EnvironmentTileSpawnRulesDefinition SpawnRules =>
-        spawnRules;
 
     /// <summary>
     /// 컴포넌트를 추가할 때 같은 GameObject의 전투 컴포넌트를 자동으로 연결합니다.
@@ -38,14 +34,6 @@ public sealed class EnvironmentTileEffectController
     }
 
     /// <summary>
-    /// 시작 시 Inspector에 등록한 환경 타일 정의를 TileBase 기준 조회 사전으로 구성합니다.
-    /// </summary>
-    private void Awake()
-    {
-        RebuildDefinitionLookup();
-    }
-
-    /// <summary>
     /// 환경 효과 실행에 필요한 전투 컴포넌트와 환경 Tilemap 참조가 연결되었는지 확인합니다.
     /// </summary>
     private void Start()
@@ -54,20 +42,21 @@ public sealed class EnvironmentTileEffectController
             || combatBootstrap == null
             || playerSpawner == null
             || enemySpawner == null
-            || environmentTilemap == null
-            || spawnRules == null)
+            || environmentTilemap == null)
         {
             Debug.LogError(
-                "EnvironmentTileEffectController requires combat references, an Environment Tilemap, and Environment Tile Spawn Rules.",
+                "EnvironmentTileEffectController requires combat references and an Environment Tilemap.",
                 this);
         }
     }
 
     /// <summary>
-    /// Inspector 설정이 바뀌었을 때 환경 타일 정의 조회 사전을 다시 구성합니다.
+    /// 새 라운드가 사용할 환경 타일 생성 규칙으로 교체하고 타일 효과 조회표를 다시 구성합니다.
     /// </summary>
-    private void OnValidate()
+    public void SetSpawnRules(
+        EnvironmentTileSpawnRulesDefinition rules)
     {
+        spawnRules = rules;
         RebuildDefinitionLookup();
     }
 

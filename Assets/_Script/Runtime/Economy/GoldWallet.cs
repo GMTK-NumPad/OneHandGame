@@ -6,6 +6,7 @@ using System;
 public sealed class GoldWallet
 {
     public int TotalGold { get; private set; }
+    public int TotalGoldEarned { get; private set; }
 
     /// <summary>
     /// 양수 골드를 최대 정수 범위 안에서 누적하고 실제 추가된 양을 반환합니다.
@@ -17,6 +18,10 @@ public sealed class GoldWallet
             safeAmount,
             int.MaxValue - TotalGold);
         TotalGold += addedAmount;
+        TotalGoldEarned = (int)Math.Min(
+            int.MaxValue,
+            (long)TotalGoldEarned
+            + addedAmount);
         return addedAmount;
     }
 }

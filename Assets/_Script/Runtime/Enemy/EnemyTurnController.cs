@@ -21,8 +21,6 @@ public sealed class EnemyTurnController : MonoBehaviour
 
     public event Action<EnemyActor> EnemyActionCompleted;
     public event Action<EnemyActor> EnemyCastingStarted;
-    public event Action<EnemyActor, int, int> EnemyCastingProgressed;
-    public event Action<EnemyActor, GridPosition> EnemyCastingReleased;
 
     /// <summary>
     /// 컴포넌트를 처음 추가할 때 같은 GameObject의 전투 컴포넌트를 자동으로 연결합니다.
@@ -338,11 +336,6 @@ public sealed class EnemyTurnController : MonoBehaviour
     {
         bool isReadyToRelease =
             state.AdvanceCasting();
-        EnemyCastingProgressed?.Invoke(
-            enemy,
-            state.CurrentCastingProgress,
-            state.Definition.RequiredCastingProgress);
-
         if (!isReadyToRelease)
         {
             yield return enemy.ActionAnimator
@@ -352,9 +345,6 @@ public sealed class EnemyTurnController : MonoBehaviour
 
         GridPosition fixedTarget =
             state.CastingTarget;
-        EnemyCastingReleased?.Invoke(
-            enemy,
-            fixedTarget);
         bool impactApplied = false;
         Action applyImpact = () =>
         {

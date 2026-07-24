@@ -19,7 +19,6 @@ public sealed class PlayerTurnController : MonoBehaviour
     private Coroutine stunnedTurnCoroutine;
     private bool isResolvingAction;
 
-    public BoardActor PlayerActor => playerActor;
     public PlayerRuntimeStats PlayerStats =>
         playerStatsController != null
             ? playerStatsController.RuntimeStats
@@ -150,13 +149,14 @@ public sealed class PlayerTurnController : MonoBehaviour
                 return false;
             }
 
+            RoundFlowStateMachine roundFlow =
+                combatBootstrap.RoundFlow;
+            roundFlow.RecordPlayerAction();
+
             if (plan.ShouldAttack)
             {
                 ExecuteAttack(plan, stats.AttackPower);
             }
-
-            RoundFlowStateMachine roundFlow =
-                combatBootstrap.RoundFlow;
 
             if (wasBound)
             {

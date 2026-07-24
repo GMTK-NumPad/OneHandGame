@@ -17,6 +17,7 @@ public sealed class GoldWalletTests
         wallet.AddGold(130);
 
         Assert.That(wallet.TotalGold, Is.EqualTo(200));
+        Assert.That(wallet.TotalGoldEarned, Is.EqualTo(200));
     }
 
     /// <summary>

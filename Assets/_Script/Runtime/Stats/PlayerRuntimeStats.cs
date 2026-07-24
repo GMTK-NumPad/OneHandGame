@@ -11,6 +11,8 @@ public sealed class PlayerRuntimeStats
     private StatModifierSet temporaryModifiers;
     private int roundAttackPowerBonus;
 
+    public event Action<int> HealthDamaged;
+
     /// <summary>
     /// 플레이어 기본 능력치 SO를 기준으로 런타임 능력치를 생성합니다.
     /// </summary>
@@ -239,7 +241,14 @@ public sealed class PlayerRuntimeStats
     {
         int previousHealth = CurrentHealth;
         CurrentHealth = Mathf.Max(0, CurrentHealth - Mathf.Max(0, amount));
-        return previousHealth - CurrentHealth;
+        int appliedDamage = previousHealth - CurrentHealth;
+
+        if (appliedDamage > 0)
+        {
+            HealthDamaged?.Invoke(appliedDamage);
+        }
+
+        return appliedDamage;
     }
 
     /// <summary>

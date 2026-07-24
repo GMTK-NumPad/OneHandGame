@@ -7993,14 +7993,15 @@ GameObject:
   - component: {fileID: 1915675697}
   - component: {fileID: 1915675696}
   - component: {fileID: 1915675699}
+  - component: {fileID: 1915675706}
+  - component: {fileID: 1915675705}
   - component: {fileID: 1915675698}
+  - component: {fileID: 1915675707}
   - component: {fileID: 1915675701}
   - component: {fileID: 1915675700}
+  - component: {fileID: 1915675704}
   - component: {fileID: 1915675703}
   - component: {fileID: 1915675702}
-  - component: {fileID: 1915675704}
-  - component: {fileID: 1915675705}
-  - component: {fileID: 1915675706}
   m_Layer: 0
   m_Name: GameManger
   m_TagString: Untagged
@@ -8067,10 +8068,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: OneHandGame.Runtime::CombatSceneBootstrap
   boardManager: {fileID: 1915675697}
-  playerSpawner: {fileID: 1915675696}
-  enemySpawner: {fileID: 1915675699}
-  environmentTileSpawner: {fileID: 1915675706}
-  environmentTileEffects: {fileID: 1915675705}
+  stageProgressionController: {fileID: 1915675707}
   roundRules: {fileID: 11400000, guid: 2ff005afb11a9224ab5f16270224bcc5, type: 2}
   initializeOnStart: 1
 --- !u!114 &1915675699
@@ -8088,22 +8086,6 @@ MonoBehaviour:
   boardManager: {fileID: 1915675697}
   goldRewardRules: {fileID: 11400000, guid: 4a5dacc5e23bc564086e3619f5920cd7, type: 2}
   actorRoot: {fileID: 2031185786}
-  fixedSpawns:
-  - enemyPrefab: {fileID: -741067517373313998, guid: 0303a73f7970d0c45a162febf972935d, type: 3}
-    definition: {fileID: 11400000, guid: 09d87bf8456878e438522c25943fbd80, type: 2}
-    boardPosition: {x: 6, y: 3}
-  - enemyPrefab: {fileID: -741067517373313998, guid: 0303a73f7970d0c45a162febf972935d, type: 3}
-    definition: {fileID: 11400000, guid: 09d87bf8456878e438522c25943fbd80, type: 2}
-    boardPosition: {x: 3, y: 4}
-  - enemyPrefab: {fileID: -741067517373313998, guid: 0303a73f7970d0c45a162febf972935d, type: 3}
-    definition: {fileID: 11400000, guid: 09d87bf8456878e438522c25943fbd80, type: 2}
-    boardPosition: {x: 6, y: 1}
-  - enemyPrefab: {fileID: -741067517373313998, guid: 0303a73f7970d0c45a162febf972935d, type: 3}
-    definition: {fileID: 11400000, guid: 09d87bf8456878e438522c25943fbd80, type: 2}
-    boardPosition: {x: 6, y: 4}
-  - enemyPrefab: {fileID: -6868000482737722605, guid: 4e23b9a08eec5b84cb4179bc57de07e6, type: 3}
-    definition: {fileID: 11400000, guid: 58878c5805754784e854365bc6132594, type: 2}
-    boardPosition: {x: 0, y: 0}
 --- !u!114 &1915675700
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8203,7 +8185,6 @@ MonoBehaviour:
   playerSpawner: {fileID: 1915675696}
   enemySpawner: {fileID: 1915675699}
   environmentTilemap: {fileID: 755015851}
-  spawnRules: {fileID: 11400000, guid: 4e6fac523ca38dc41b9f69b8b3a40265, type: 2}
 --- !u!114 &1915675706
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8218,7 +8199,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: OneHandGame.Runtime::EnvironmentTileSpawner
   boardManager: {fileID: 1915675697}
   environmentTilemap: {fileID: 755015851}
-  spawnRules: {fileID: 11400000, guid: 4e6fac523ca38dc41b9f69b8b3a40265, type: 2}
+--- !u!114 &1915675707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1915675694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c8d99be946345189cced10bff5640bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: OneHandGame.Runtime::StageProgressionController
+  progressionDefinition: {fileID: 11400000, guid: 9a5034762b814f24c89d232df1cad13a, type: 2}
+  autoContinueWithoutUiListener: 1
+  playerSpawner: {fileID: 1915675696}
+  enemySpawner: {fileID: 1915675699}
+  environmentTileSpawner: {fileID: 1915675706}
+  environmentTileEffects: {fileID: 1915675705}
+  goldWalletController: {fileID: 1915675703}
 --- !u!1 &1922421135
 GameObject:
   m_ObjectHideFlags: 0

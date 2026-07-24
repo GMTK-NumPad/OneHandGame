@@ -2,19 +2,18 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// 전투 씬의 보드를 초기화하고 플레이어와 고정 몬스터를 생성한 뒤 첫 라운드를 시작합니다.
+/// 전투 씬의 보드와 플레이어를 초기화하고 스테이지 진행 컨트롤러를 통해 첫 라운드를 시작합니다.
 /// </summary>
 public sealed class CombatSceneBootstrap : MonoBehaviour
 {
     [SerializeField] private BoardManager boardManager = null;
-    [SerializeField] private PlayerSpawner playerSpawner = null;
-    [SerializeField] private EnemySpawner enemySpawner = null;
     [SerializeField]
-    private EnvironmentTileSpawner environmentTileSpawner = null;
-    [SerializeField]
-    private EnvironmentTileEffectController environmentTileEffects = null;
+    private StageProgressionController stageProgressionController =
+        null;
     [SerializeField] private RoundRulesDefinition roundRules = null;
     [SerializeField] private bool initializeOnStart = true;
+
+    private PlayerRuntimeStats subscribedPlayerStats;
 
     public event Action CombatInitialized;
     public RoundFlowStateMachine RoundFlow { get; private set; }
@@ -26,12 +25,8 @@ public sealed class CombatSceneBootstrap : MonoBehaviour
     private void Reset()
     {
         boardManager = GetComponent<BoardManager>();
-        playerSpawner = GetComponent<PlayerSpawner>();
-        enemySpawner = GetComponent<EnemySpawner>();
-        environmentTileSpawner =
-            GetComponent<EnvironmentTileSpawner>();
-        environmentTileEffects =
-            GetComponent<EnvironmentTileEffectController>();
+        stageProgressionController =
+            GetComponent<StageProgressionController>();
     }
 
     /// <summary>
@@ -46,7 +41,15 @@ public sealed class CombatSceneBootstrap : MonoBehaviour
     }
 
     /// <summary>
-    /// 보드, 플레이어, 몬스터와 라운드 상태를 순서대로 한 번만 초기화합니다.
+    /// 컴포넌트가 비활성화될 때 플레이어 피해 이벤트 구독을 해제합니다.
+    /// </summary>
+    private void OnDisable()
+    {
+        UnsubscribeRuntimeEvents();
+    }
+
+    /// <summary>
+    /// 보드, 플레이어, 라운드 상태와 스테이지 진행을 순서대로 한 번만 초기화합니다.
     /// </summary>
     public bool TryInitializeCombat()
     {
@@ -58,16 +61,10 @@ public sealed class CombatSceneBootstrap : MonoBehaviour
             return false;
         }
 
-        if (environmentTileSpawner == null)
+        if (stageProgressionController == null)
         {
-            environmentTileSpawner =
-                GetComponent<EnvironmentTileSpawner>();
-        }
-
-        if (environmentTileEffects == null)
-        {
-            environmentTileEffects =
-                GetComponent<EnvironmentTileEffectController>();
+            stageProgressionController =
+                GetComponent<StageProgressionController>();
         }
 
         if (!ValidateDependencies())
@@ -75,32 +72,18 @@ public sealed class CombatSceneBootstrap : MonoBehaviour
             return false;
         }
 
-        enemySpawner.ClearSpawnedEnemies();
         boardManager.RebuildBoard();
-
-        BoardActor player = playerSpawner.SpawnOrResetPlayer();
-
-        if (player == null)
-        {
-            return false;
-        }
-
-        enemySpawner.SetPlayerActor(player);
-
-        if (!enemySpawner.TrySpawnFixedEnemies())
-        {
-            return false;
-        }
-
-        if (!environmentTileSpawner
-                .GenerateEnvironmentTiles())
-        {
-            return false;
-        }
-
         RoundFlow = roundRules.CreateStateMachine();
-        RoundFlow.StartFirstRound(
-            enemySpawner.SpawnedEnemies.Count);
+
+        if (!stageProgressionController.TryStartRun(
+                RoundFlow,
+                out PlayerRuntimeStats playerStats))
+        {
+            RoundFlow = null;
+            return false;
+        }
+
+        SubscribeRuntimeEvents(playerStats);
         IsInitialized = true;
         CombatInitialized?.Invoke();
         return true;
@@ -112,27 +95,63 @@ public sealed class CombatSceneBootstrap : MonoBehaviour
     private bool ValidateDependencies()
     {
         if (boardManager == null
-            || playerSpawner == null
-            || enemySpawner == null
-            || environmentTileSpawner == null
-            || environmentTileEffects == null
+            || stageProgressionController == null
             || roundRules == null)
         {
             Debug.LogError(
-                "CombatSceneBootstrap requires board, player, enemy, environment spawn/effect components, and RoundRulesDefinition.",
-                this);
-            return false;
-        }
-
-        if (environmentTileSpawner.SpawnRules
-            != environmentTileEffects.SpawnRules)
-        {
-            Debug.LogError(
-                "EnvironmentTileSpawner and EnvironmentTileEffectController must use the same Environment Tile Spawn Rules.",
+                "CombatSceneBootstrap requires BoardManager, StageProgressionController, and RoundRulesDefinition.",
                 this);
             return false;
         }
 
         return true;
     }
+
+    /// <summary>
+    /// 실제 소모품 사용이 성공했을 때 이번 라운드의 소모품 사용 기록을 남깁니다.
+    /// </summary>
+    public bool ReportConsumableUsed()
+    {
+        return RoundFlow != null
+            && RoundFlow.ReportConsumableUsed();
+    }
+
+    /// <summary>
+    /// 생성된 플레이어의 실제 피해 이벤트를 현재 전투 흐름에 연결합니다.
+    /// </summary>
+    private void SubscribeRuntimeEvents(
+        PlayerRuntimeStats stats)
+    {
+        UnsubscribeRuntimeEvents();
+        subscribedPlayerStats = stats;
+
+        if (subscribedPlayerStats != null)
+        {
+            subscribedPlayerStats.HealthDamaged +=
+                HandlePlayerHealthDamaged;
+        }
+
+    }
+
+    /// <summary>
+    /// 이전 플레이어 능력치에 등록한 피해 이벤트 구독을 해제합니다.
+    /// </summary>
+    private void UnsubscribeRuntimeEvents()
+    {
+        if (subscribedPlayerStats != null)
+        {
+            subscribedPlayerStats.HealthDamaged -=
+                HandlePlayerHealthDamaged;
+            subscribedPlayerStats = null;
+        }
+    }
+
+    /// <summary>
+    /// 방어 후 실제로 감소한 체력을 현재 라운드와 결과 통계에 전달합니다.
+    /// </summary>
+    private void HandlePlayerHealthDamaged(int amount)
+    {
+        RoundFlow?.ReportPlayerDamageTaken(amount);
+    }
+
 }
